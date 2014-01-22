@@ -6,6 +6,7 @@ from log.models import Day, Food, Serving
 class ServingInline(admin.TabularInline):
   model = Serving
   extra = 0
+  ordering = ('meal',)
 
 class DayAdmin(admin.ModelAdmin):
   fieldsets = [
