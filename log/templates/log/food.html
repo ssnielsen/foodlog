@@ -5,7 +5,8 @@
 {% endblock title %}
 
 {% block content %}
+  <h1>Food</h1>
   {% for food in food_list %}
-    {{ food.text }} <br />
+    {{ food.text }} - {{ food.energy }} kcal/100 g <br />
   {% endfor %}
 {% endblock content %}

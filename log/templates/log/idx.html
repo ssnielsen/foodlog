@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 {% load staticfiles %}
 
+
 <html>
 
   <head>
+    {% load selectable_tags %}
+    {% include_jquery_libs %}
     <link rel="stylesheet" type="text/css" href="{% static "log/css/bootstrap.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/style.css" %}">
     <script type="text/javascript" src="{% static "log/js/jquery-2.0.3.js" %}"></script>
@@ -27,6 +30,7 @@
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a href="/foodlog">Log</a></li>
+            <li><a href="/foodlog/food">Food</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

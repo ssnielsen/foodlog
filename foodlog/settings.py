@@ -36,7 +36,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'log'
+    'selectable', # For search fields
+    'log',
 )
 
 MIDDLEWARE_CLASSES = (

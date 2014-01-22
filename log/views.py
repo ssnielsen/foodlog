@@ -1,11 +1,13 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.core import serializers
 import datetime
 from django.views import generic
 
 from log.models import Day, Serving, Food, REV_MEAL_DICT
+from log.forms import FoodSearchForm
 
 import sys
 
@@ -35,6 +37,7 @@ class DayView(generic.DateDetailView):
     return day
 
 def findBestMaxCal(date):
+  '''Find the best match for a newly created day'''
   days_lt = Day.objects.filter(day__lt = date).order_by('-day')
   for day in days_lt:
     return day.max_cal
@@ -52,3 +55,21 @@ def add_serving(request, year, month, day):
   serving = Serving(day = day_obj, meal = meal, food = food, amount = amount)
   serving.save()
   return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))
+
+class FoodView(generic.ListView):
+  model = Food
+  template_name = 'log/food.html'
+
+def food_search(request):
+  # food_query = request.POST['food_query']
+  # data = serializers.serialize('json', Food.objects.filter(text__contains = food_query))
+  # return HttpResponse(data)
+  
+  if request.method == 'POST':
+    form = FoodSearchForm(request.POST)
+    if form.is_valid():
+      food_query = form.cleaned_data['food_query']
+      data = serializers.serialize('json', Food.objects.filter(text__contains = food_query))
+      return HttpResponse(data)
+    return HttpResponse()
+

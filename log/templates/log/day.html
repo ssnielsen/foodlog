@@ -44,13 +44,13 @@
             <tr>
               <th>{{ meal.0 }}&nbsp;&nbsp;
                 <div class="btn-group">
-                  <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#add-food" data-meal="{{ meal.0 }}">
+                  <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#add-food-modal" data-meal="{{ meal.0 }}">
                     <span class="glyphicon glyphicon-plus"></span>
                   </button>
                 </div>
               </th>
-              <th width="100" class="td-right">{{ cals_by_meal | getkey:meal.0 }} g</th>
-              <th width="100" class="td-right">{{ amount_by_meal | getkey:meal.0 }} kcal</th>
+              <th width="100" class="td-right">{{ amount_by_meal | getkey:meal.0 }} g</th>
+              <th width="100" class="td-right">{{ cals_by_meal | getkey:meal.0 }} kcal</th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +67,7 @@
     {% endfor %}
   {% endwith %}
 
-  <div class="modal" id="add-food">
+  <div class="modal" id="add-food-modal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -79,12 +79,21 @@
             {% csrf_token %}
             <input type="hidden" id="meal" name="meal" value="" />
             <div class="form-group">
-              <label for="food">Food</label>
-              <input type="text" class="form-control" id="food_id" name="food_id">
+              <div class="col-sm-12"><input type="text" class="form-control" id="food_query" name="food_query" /></div>
             </div>
             <div class="form-group">
-              <label for="amount">Amount</label>
-              <input type="number" class="form-control" id="amount" name="amount">
+              <div class="col-sm-12">
+                <select class="form-control" name="food-result-list" id="food-result-list" size="6">
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              {# <label for="food">Food</label> #}
+              <input type="hidden" class="form-control" id="food_id" name="food_id" />
+            </div>
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="amount">Amount</label>
+              <div class="col-sm-3"><input type="number" class="form-control" id="amount" name="amount" /></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -94,6 +103,35 @@
         </form> 
       </div>
     </div>
+    <script>
+      // Make an AJAX request and populate listbox with search results
+      $('#food_query').keyup(function() {
+        var food_query = $('#food_query').val();
+        $('#food-result-list').empty(); // Clear list
+        if (food_query.length < 1) return;
+        $.post("/foodlog/food/search/", {food_query: $("#food_query").val()})
+          .done( function(data) {
+            var food_list = JSON.parse(data);
+            for (var i = 0; i < food_list.length; i++) {
+              var food_obj = food_list[i];
+              var option = '<option style="font-size: 8px;" id="' + food_obj.pk + '">' + food_obj.fields.text + '</option>';
+              $('#food-result-list').append(option);
+            }
+          });
+      });
+
+      // Set selected food_id to hidden field
+      $('#food-result-list').change( function() {
+        var id = $('#food-result-list option:selected').attr('id');
+        $('#food_id').val(id);
+      });
+
+      // Focus on the foodbox
+      $('#add-food-modal').on('shown.bs.modal', function (e) {
+        console.log("modal!");
+        $('#food_query').focus();
+      });
+    </script>
   </div>
 
   
