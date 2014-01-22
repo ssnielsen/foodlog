@@ -56,6 +56,12 @@ def add_serving(request, year, month, day):
   serving.save()
   return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))
 
+def remove_serving(request, year, month, day):
+  if 'serving_id' in request.POST:
+    serving = Serving.objects.get(pk = request.POST['serving_id'])
+    serving.delete()
+  return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))
+
 class FoodView(generic.ListView):
   model = Food
   template_name = 'log/food.html'

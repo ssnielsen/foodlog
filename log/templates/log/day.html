@@ -42,9 +42,10 @@
         <table class="table-hover table-condensed table ">
           <thead>
             <tr>
-              <th>{{ meal.0 }}&nbsp;&nbsp;
+              <th>
+                {{ meal.0 }}&nbsp;&nbsp;
                 <div class="btn-group">
-                  <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#add-food-modal" data-meal="{{ meal.0 }}">
+                  <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#add-serving-modal" data-meal="{{ meal.0 }}">
                     <span class="glyphicon glyphicon-plus"></span>
                   </button>
                 </div>
@@ -56,7 +57,18 @@
           <tbody>
             {% for serving in meal.1 %}
               <tr>
-                <td>{{ serving.food }}</td>
+                <td>
+                  {{ serving.food }}
+                  {% comment %}
+                  <div class="btn-group">
+                    <form action={% url 'foodlog:remove_serving' object.day.year object.day.month object.day.day %}" method="POST">
+                    </form>
+                    <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#remove-serving-modal" data-food-id="{{ serving.pk }}">
+                      <span class="glyphicon glyphicon-delete"></span>
+                    </button>
+                  </div>  
+                  {% endcomment %}
+                </td>
                 <td class="td-right">{{ serving.amount }} g</td>
                 <td class="td-right">{{ serving.cals }} kcal</td>
               </tr>
@@ -67,19 +79,19 @@
     {% endfor %}
   {% endwith %}
 
-  <div class="modal" id="add-food-modal">
+  <div class="modal" id="add-serving-modal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="myModalLabel">Add food</h4>
+          <h4 class="modal-title" id="myModalLabel">Add serving</h4>
         </div>
         <form class="form-horizontal" role="form" action="{% url 'foodlog:add_serving' object.day.year object.day.month object.day.day %}" method="post">
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" id="meal" name="meal" value="" />
             <div class="form-group">
-              <div class="col-sm-12"><input type="text" class="form-control" id="food_query" name="food_query" /></div>
+              <div class="col-sm-12"><input type="text" class="form-control input-sm" id="food_query" name="food_query" /></div>
             </div>
             <div class="form-group">
               <div class="col-sm-12">
@@ -93,7 +105,12 @@
             </div>
             <div class="form-group">
               <label class="col-sm-2 control-label" for="amount">Amount</label>
-              <div class="col-sm-3"><input type="number" class="form-control" id="amount" name="amount" /></div>
+              <div class="col-sm-4">
+                <div class="input-group">
+                  <input type="number" class="form-control input-sm" id="amount" name="amount" />
+                  <span class="input-group-addon">gram</span>
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -104,11 +121,22 @@
       </div>
     </div>
     <script>
+
+
+      // Set selected food_id to hidden field
+      $('#food-result-list').change( function() {
+        var id = $('#food-result-list option:selected').attr('id');
+        $('#food_id').val(id);
+      });
+
       // Make an AJAX request and populate listbox with search results
       $('#food_query').keyup(function() {
         var food_query = $('#food_query').val();
         $('#food-result-list').empty(); // Clear list
-        if (food_query.length < 1) return;
+        if (food_query.length < 1) {
+          $('#food_id').val('');
+          return;
+        }
         $.post("/foodlog/food/search/", {food_query: $("#food_query").val()})
           .done( function(data) {
             var food_list = JSON.parse(data);
@@ -117,18 +145,13 @@
               var option = '<option style="font-size: 8px;" id="' + food_obj.pk + '">' + food_obj.fields.text + '</option>';
               $('#food-result-list').append(option);
             }
+            $("#food-result-list option:first").attr('selected','selected');
+            $('#food_id').val($('#food-result-list option:selected').attr('id'));
           });
       });
 
-      // Set selected food_id to hidden field
-      $('#food-result-list').change( function() {
-        var id = $('#food-result-list option:selected').attr('id');
-        $('#food_id').val(id);
-      });
-
       // Focus on the foodbox
-      $('#add-food-modal').on('shown.bs.modal', function (e) {
-        console.log("modal!");
+      $('#add-serving-modal').on('shown.bs.modal', function (e) {
         $('#food_query').focus();
       });
     </script>
