@@ -1,10 +1,11 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import datetime
 from django.views import generic
 
-from log.models import Day, Serving, Food
+from log.models import Day, Serving, Food, REV_MEAL_DICT
 
 import sys
 
@@ -33,7 +34,6 @@ class DayView(generic.DateDetailView):
       day.save()
     return day
 
-
 def findBestMaxCal(date):
   days_lt = Day.objects.filter(day__lt = date).order_by('-day')
   for day in days_lt:
@@ -41,4 +41,14 @@ def findBestMaxCal(date):
   days_gt = Day.objects.filter(day__gt = date).order_by('day')
   for day in days_gt:
     return day.max_cal
-  return 1234   
+  return 1234
+
+def add_serving(request, year, month, day):
+  date = datetime.date(int(year), int(month), int(day))
+  day_obj = get_object_or_404(Day, day = date)
+  food = get_object_or_404(Food, pk = request.POST['food_id'])
+  amount = request.POST['amount']
+  meal = REV_MEAL_DICT[request.POST['meal']]
+  serving = Serving(day = day_obj, meal = meal, food = food, amount = amount)
+  serving.save()
+  return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))

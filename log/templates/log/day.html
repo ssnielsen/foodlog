@@ -1,0 +1,104 @@
+{% extends "log/idx.html" %}
+
+{% load custom_tags %}
+
+
+{% block title %}
+  {{ object.day | date:"d. M, Y" }}
+{% endblock title %}
+
+
+{% block content %}
+  <ul class="pager">
+    <li class="previous">
+      {% with prev_day=object.prev_day %}
+        <a href="{% url 'foodlog:day' year=prev_day.year month=prev_day.month day=prev_day.day %}">&larr; Previous day</a>
+      {% endwith %}
+    </li>
+    <li class="next">
+      {% with next_day=object.next_day %}
+        <a href="{% url 'foodlog:day' year=next_day.year month=next_day.month day=next_day.day %}">Next day &rarr;</a>
+    {% endwith %}
+    </li>
+  </ul>
+
+  {% comment %}
+  <div class="pull-left">
+    {% with prev_day=object.prev_day %}
+      <a href="{% url 'foodlog:day' year=prev_day.year month=prev_day.month day=prev_day.day %}">Previous day</a>
+    {% endwith %}
+  </div>
+  <div class="pull-right">
+    {% with next_day=object.next_day %}
+      <a href="{% url 'foodlog:day' year=next_day.year month=next_day.month day=next_day.day %}">Next day</a>
+    {% endwith %}
+  </div>   
+  {% endcomment %}
+
+  <h1>{{ object.day | date:"d. M Y" }}  <small>{{ object.cals }} of {{ object.max_cal }} kcal</small></h1>
+  {% with cals_by_meal=object.cals_by_meal amount_by_meal=object.amount_by_meal %}
+    {% for meal in object.servings_by_meal  %}
+      <p>
+        <table class="table-hover table-condensed table ">
+          <thead>
+            <tr>
+              <th>{{ meal.0 }}&nbsp;&nbsp;
+                <div class="btn-group">
+                  <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#add-food" data-meal="{{ meal.0 }}">
+                    <span class="glyphicon glyphicon-plus"></span>
+                  </button>
+                </div>
+              </th>
+              <th width="100" class="td-right">{{ cals_by_meal | getkey:meal.0 }} g</th>
+              <th width="100" class="td-right">{{ amount_by_meal | getkey:meal.0 }} kcal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for serving in meal.1 %}
+              <tr>
+                <td>{{ serving.food }}</td>
+                <td class="td-right">{{ serving.amount }} g</td>
+                <td class="td-right">{{ serving.cals }} kcal</td>
+              </tr>
+            {% endfor %}  
+          </tbody>
+        </table>
+      </p>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="modal" id="add-food">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="myModalLabel">Add food</h4>
+        </div>
+        <form class="form-horizontal" role="form" action="{% url 'foodlog:add_serving' object.day.year object.day.month object.day.day %}" method="post">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" id="meal" name="meal" value="" />
+            <div class="form-group">
+              <label for="food">Food</label>
+              <input type="text" class="form-control" id="food_id" name="food_id">
+            </div>
+            <div class="form-group">
+              <label for="amount">Amount</label>
+              <input type="number" class="form-control" id="amount" name="amount">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <input type="submit" value="Add" class="btn btn-primary" />
+          </div>
+        </form> 
+      </div>
+    </div>
+  </div>
+
+  
+
+
+
+
+{% endblock content %}

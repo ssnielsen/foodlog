@@ -1,0 +1,20 @@
+body {
+  padding-top: 30px;
+}
+
+.content {
+  padding-left: 60px;
+  padding-right: 60px;
+}
+
+.td-right {
+  text-align: right;
+}
+
+.btn-group {
+    visibility:hidden;
+}
+
+table tr:hover .btn-group {
+    visibility:visible;
+}
