@@ -1,0 +1,11 @@
+{% extends "log/idx.html" %}
+
+{% block title %}
+  Food
+{% endblock title %}
+
+{% block content %}
+  {% for food in food_list %}
+    {{ food.text }} <br />
+  {% endfor %}
+{% endblock content %}
