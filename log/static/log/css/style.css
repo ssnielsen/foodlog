@@ -10,11 +10,21 @@ body {
 .td-right {
   text-align: right;
 }
-
+/*
 .btn-group {
     visibility:hidden;
 }
 
 table tr:hover .btn-group {
     visibility:visible;
+}*/
+
+.pieLabel {
+  font-family: inherit;
+  font-size: 0.8em;
+}
+
+.no-margin-padding {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
 }

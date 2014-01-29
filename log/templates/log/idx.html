@@ -5,13 +5,17 @@
 <html>
 
   <head>
-    {% load selectable_tags %}
-    {% include_jquery_libs %}
     <link rel="stylesheet" type="text/css" href="{% static "log/css/bootstrap.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "log/css/jquery.jqplot.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/style.css" %}">
     <script type="text/javascript" src="{% static "log/js/jquery-2.0.3.js" %}"></script>
-    <script type="text/javascript" src="{% static "log/js/custom.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.pie.js" %}"></script>
+    <!--<script type="text/javascript" src="{% static "log/js/jquery.jqplot.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/jqplot.pieRenderer.min.js" %}"></script>-->
     <script type="text/javascript" src="{% static "log/js/bootstrap.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/custom.js" %}"></script>
     <title>Foodlog - {% block title %} {% endblock title %}</title>
   </head>
 
@@ -38,9 +42,26 @@
     <br />
     
     <div class="container content">
+      <div class="main-content col-lg-8">
       {% block content %}
         
       {% endblock content %}
+      </div>
+      <div class="right-sidebar col-lg-4">
+        <br />
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Nutrient distribution</h3>
+          </div>
+          <div class="panel-body">
+            <div class="col-lg-6 no-margin-padding" id="macro-nutrients-piechart"></div>
+
+            <div class="col-lg-6 no-margin-padding" id="macro-nutrients-barchart">
+              asdfnsdlkf sdfl ksj flks jflsk dfjsd lfksd lksjl kj lk jl ksdj k jsl kj lk  lk jsl dkj kl
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
