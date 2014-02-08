@@ -10,33 +10,10 @@
 
 
 {% block content %}
-  <!--ul class="pager">
-    <li class="previous">
-      {% with prev_day=object.prev_day %}
-        <a href="{% url 'foodlog:day' year=prev_day.year month=prev_day.month day=prev_day.day %}">&larr; Previous day</a>
-      {% endwith %}
-    </li>
-    <li class="next">
-      {% with next_day=object.next_day %}
-        <a href="{% url 'foodlog:day' year=next_day.year month=next_day.month day=next_day.day %}">Next day &rarr;</a>
-    {% endwith %}
-    </li>
-  </ul-->
-
-  {% comment %}
-  <div class="pull-left">
-    {% with prev_day=object.prev_day %}
-      <a href="{% url 'foodlog:day' year=prev_day.year month=prev_day.month day=prev_day.day %}">Previous day</a>
-    {% endwith %}
-  </div>
-  <div class="pull-right">
-    {% with next_day=object.next_day %}
-      <a href="{% url 'foodlog:day' year=next_day.year month=next_day.month day=next_day.day %}">Next day</a>
-    {% endwith %}
-  </div>   
-  {% endcomment %}
-
-  <h1>{{ object.day | date:"d. M Y" }}  <small><span id="cals">{{ object.cals }}</span> of <span id="max_cal">{{ object.max_cal }}</span> kcal</small></h1>
+  <h2>
+    <span class="" display="list-item">{{ object.day | date:"d. M Y" }}</span>
+    <span class="" display="list-item"><small><span id="cals">{{ object.cals }}</span> of <span id="max_cal">{{ object.max_cal }}</span> kcal</small></span>
+  </h2>
   {% with cals_by_meal=object.cals_by_meal amount_by_meal=object.amount_by_meal %}
     {% for meal in object.servings_by_meal %}
       <p>
@@ -51,8 +28,8 @@
                   </button>
                 </div>
               </th>
-              <th width="100" class="td-right"><span id="{{ meal.0 }}-amount">{{ amount_by_meal | getkey:meal.0 }}</span> g</th>
-              <th width="100" class="td-right"><span id="{{ meal.0 }}-cals">{{ cals_by_meal | getkey:meal.0 }}</span> kcal</th>
+              <th width="80" class="td-right"><span id="{{ meal.0 }}-amount">{{ amount_by_meal | getkey:meal.0 }}</span> g</th>
+              <th width="80" class="td-right"><span id="{{ meal.0 }}-cals">{{ cals_by_meal | getkey:meal.0 }}</span> kcal</th>
             </tr>
           </thead>
           <tbody id="{{ meal.0 }}" >
@@ -79,7 +56,7 @@
     {% endfor %}
   {% endwith %}
 
-  <div class="modal" id="add-serving-modal">
+  <div class="modal active" id="add-serving-modal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -161,8 +138,6 @@
           var amount = serving_obj.fields.amount;
           var cals = data.cals;
           var pk = serving_obj.pk
-          console.log(data);
-          console.log(serving_obj);
           var food_text = data.food_text;
           var row = '<tr id="' + pk + '"> \
               <td> \
@@ -179,9 +154,10 @@
               <td class="td-right"><span class="amount">' + amount +'</span> g</td> \
               <td class="td-right"><span class="cals">' + cals +'</span> kcal</td> \
             </tr>';
-          $('#' + meal + ' tr:last').after(row);
+          $('#' + meal).append(row);
           updateServingButtons();
           updateDayInfo();
+          $('#add_amount').blur();
           $('#add-serving-modal').modal('hide');
         });
       });
@@ -209,22 +185,25 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Edit serving</h4>
         </div>
-        <div class="modal-body">
-          <input type="hidden" id="serving_id" name="serving_id" value="" />
-          <div class="form-group">
-            <label class="col-sm-2 control-label" for="edit_amount">Amount</label>
-            <div class="col-sm-4">
-              <div class="input-group">
-                <input type="number" class="form-control input-sm" id="edit_amount" name="edit_amount" />
-                <span class="input-group-addon">gram</span>
+        <form id="edit_serving_form" class="form-horizontal" role="form" method="post">
+          {% csrf_token %}
+          <div class="modal-body">
+            <input type="hidden" id="serving_id" name="serving_id" value="" />
+            <div class="form-group">
+              <label class="col-sm-2 control-label" for="edit_amount">Amount</label>
+              <div class="col-sm-4">
+                <div class="input-group">
+                  <input type="number" class="form-control input-sm" id="edit_amount" name="edit_amount" />
+                  <span class="input-group-addon">gram</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary" id="edit_serving_submit" >Save</button>
-        </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <input type="submit" class="btn btn-primary" id="edit_serving_submit" value="Save" />
+          </div>
+        </form>
       </div>
     </div>
     <script type="text/javascript">
@@ -234,7 +213,9 @@
       });
 
       // Use ajax to edit the serving's amount and update ui with changes accordingly.
-      $('#edit_serving_submit').click(function() {
+      $('#edit_serving_form').submit(function() {
+        // prevent default browser behaviour
+        event.preventDefault();
         var serving_id = $('#serving_id').val();
         var amount = $('#edit_amount').val();
         var serving_row = $('#' + serving_id);
@@ -246,7 +227,9 @@
           var cals = data.cals;
           serving_row.find(".amount").text(amount);
           serving_row.find(".cals").text(cals);
+          serving_row.find(".open-edit-serving").attr('data-amount', amount);
           updateDayInfo();
+          $('#edit_amount').blur();
           $('#edit-serving-modal').modal('hide');
         });
       });

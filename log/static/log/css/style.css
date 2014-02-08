@@ -1,10 +1,5 @@
 body {
-  padding-top: 30px;
-}
-
-.content {
-  padding-left: 60px;
-  padding-right: 60px;
+  padding-top: 70px;
 }
 
 .td-right {
@@ -42,15 +37,19 @@ table tr:hover .btn-group {
   padding: 0;
 }
 
+.calendar-panel {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .day {
   font-size: 0.8em;
   /*padding: 1px;*/
 }
 
-@media (max-width: 200px) {
+@media (max-width: 760px) {
   body {
-    padding-right: 0;
-    padding-left: 0;
+    font-size: 1.1em;
   }
   .navbar-fixed-top,
   .navbar-fixed-bottom,
