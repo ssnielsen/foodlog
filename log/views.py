@@ -79,7 +79,13 @@ def add_serving(request, year, month, day):
     meal = REV_MEAL_DICT[request.POST['meal']]
     serving = Serving(day = day_obj, meal = meal, food = food, amount = amount)
     serving.save()
-    return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))
+    to_json = {
+      "serving_obj" : serializers.serialize('json', (serving,)),
+      "food_text" : food.text,
+      "cals" : serving.cals(),
+    }
+    data = json.dumps(to_json)
+    return HttpResponse(data, content_type = 'application/json')
   return index(request)
 
 def remove_serving(request, year, month, day):

@@ -28,3 +28,34 @@ table tr:hover .btn-group {
   padding: 0 0 0 0;
   margin: 0 0 0 0;
 }
+
+.table-nutrient {
+  font-size: 0.8em;
+  margin-bottom: 0;
+}
+
+.table-nutrient tbody tr td {
+  padding: 2px;
+}
+
+.datepicker {
+  padding: 0;
+}
+
+.day {
+  font-size: 0.8em;
+  /*padding: 1px;*/
+}
+
+@media (max-width: 200px) {
+  body {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  .navbar-fixed-top,
+  .navbar-fixed-bottom,
+  .navbar-static-top {
+    margin-right: 0;
+    margin-left: 0;
+  }
+}

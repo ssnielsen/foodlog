@@ -3,13 +3,14 @@
 {% load custom_tags %}
 
 
+
 {% block title %}
   {{ object.day | date:"d. M, Y" }}
 {% endblock title %}
 
 
 {% block content %}
-  <ul class="pager">
+  <!--ul class="pager">
     <li class="previous">
       {% with prev_day=object.prev_day %}
         <a href="{% url 'foodlog:day' year=prev_day.year month=prev_day.month day=prev_day.day %}">&larr; Previous day</a>
@@ -20,7 +21,7 @@
         <a href="{% url 'foodlog:day' year=next_day.year month=next_day.month day=next_day.day %}">Next day &rarr;</a>
     {% endwith %}
     </li>
-  </ul>
+  </ul-->
 
   {% comment %}
   <div class="pull-left">
@@ -85,7 +86,7 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Add serving</h4>
         </div>
-        <form class="form-horizontal" role="form" action="{% url 'foodlog:add_serving' object.day.year object.day.month object.day.day %}" method="post">
+        <form id="add_serving_form" class="form-horizontal" role="form">
           <div class="modal-body">
             {% csrf_token %}
             <input type="hidden" id="meal" name="meal" value="" />
@@ -106,7 +107,7 @@
               <label class="col-sm-2 control-label" for="amount">Amount</label>
               <div class="col-sm-4">
                 <div class="input-group">
-                  <input type="number" class="form-control input-sm" id="amount" name="amount" />
+                  <input type="number" class="form-control input-sm" id="add_amount" name="amount" />
                   <span class="input-group-addon">gram</span>
                 </div>
               </div>
@@ -147,13 +148,54 @@
           });
       });
 
-      // Focus on the foodbox
+      $('#add_serving_form').submit(function() {
+        // prevent default browser behaviour
+        event.preventDefault();
+        var meal = $('#meal').val();
+        var food_id = $('#food_id').val();
+        var amount = $('#add_amount').val();
+        var url = document.URL + "serving/add/";
+        var input = {meal: meal, food_id: food_id, amount: amount};
+        $.post(url, input).done(function(data) {
+          var serving_obj = JSON.parse(data.serving_obj)[0];
+          var amount = serving_obj.fields.amount;
+          var cals = data.cals;
+          var pk = serving_obj.pk
+          console.log(data);
+          console.log(serving_obj);
+          var food_text = data.food_text;
+          var row = '<tr id="' + pk + '"> \
+              <td> \
+                ' +  food_text +'&nbsp;&nbsp; \
+                <div class="btn-group hover-visible"> \
+                  <button type="button" class="open-edit-serving btn btn-default btn-xs" data-toggle="modal" data-target="#edit-serving-modal" data-serving="' + pk + '" data-amount="' + amount + '"> \
+                    <span class="glyphicon glyphicon-edit"></span> \
+                  </button> \
+                  <button type="button" class="remove-serving-button btn btn-default btn-xs"> \
+                    <span class="glyphicon glyphicon-remove"></span> \
+                  </button> \
+                </div> \
+              </td> \
+              <td class="td-right"><span class="amount">' + amount +'</span> g</td> \
+              <td class="td-right"><span class="cals">' + cals +'</span> kcal</td> \
+            </tr>';
+          $('#' + meal + ' tr:last').after(row);
+          updateServingButtons();
+          updateDayInfo();
+          $('#add-serving-modal').modal('hide');
+        });
+      });
+
+      // Reset and focus on the foodbox
       $('#add-serving-modal').on('shown.bs.modal', function (e) {
+        $('#food_query').val('');
+        $('#add_amount').val('');
+        $('#food-result-list').empty();
         $('#food_query').focus();
       });
 
       // Activate submit when input is correct
-      $("#amount").keyup(function() {
+      $("#add_amount").keyup(function() {
         checkAddServingState();
       });
 

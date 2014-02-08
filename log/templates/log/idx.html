@@ -5,18 +5,23 @@
 <html>
 
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/bootstrap.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "log/css/datepicker3.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/jquery.jqplot.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/style.css" %}">
     <script type="text/javascript" src="{% static "log/js/jquery-2.0.3.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/jquery.cookie.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/bootstrap.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.pie.js" %}"></script>
-    <!--<script type="text/javascript" src="{% static "log/js/jquery.jqplot.js" %}"></script>
-    <script type="text/javascript" src="{% static "log/js/jqplot.pieRenderer.min.js" %}"></script>-->
-    <script type="text/javascript" src="{% static "log/js/bootstrap.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.categories.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/custom.js" %}"></script>
-    <title>Foodlog - {% block title %} {% endblock title %}</title>
+    <title>Foodlog - {% block title %} {% endblock title %}</title>  
+    <script type="text/javascript">
+      var chosen_date = "{{ object.day | date:"Y-m-d" }}";
+    </script>
   </head>
 
   <body>
@@ -42,25 +47,59 @@
     <br />
     
     <div class="container content">
-      <div class="main-content col-lg-8">
-      {% block content %}
-        
-      {% endblock content %}
-      </div>
-      <div class="right-sidebar col-lg-4">
-        <br />
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Nutrient distribution</h3>
-          </div>
-          <div class="panel-body">
-            <div class="col-lg-6 no-margin-padding" id="macro-nutrients-piechart"></div>
-
-            <div class="col-lg-6 no-margin-padding" id="macro-nutrients-barchart">
-              asdfnsdlkf sdfl ksj flks jflsk dfjsd lfksd lksjl kj lk jl ksdj k jsl kj lk  lk jsl dkj kl
+      <div class="row">
+        <div class="col-md-3 hidden-xs">
+          <br />
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Calendar</h3>
+            </div>
+            <div class="panel-body">
+              <div class="datepicker"></div>
             </div>
           </div>
         </div>
+
+        <div class="main-content col-md-6">
+        {% block content %}
+          
+        {% endblock content %}
+        </div>
+
+        <div class="right-sidebar col-md-3">
+          <br />
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Nutrient distribution</h3>
+            </div>
+            <div class="panel-body" style="padding-top: 0;">
+              <div class="row">
+                <div class="col-sm-6 no-margin-padding" id="macro-nutrients-piechart"></div>
+                <div class="col-sm-6 no-margin-padding" id="macro-nutrients-barchart"></div>
+              </div>
+              <table class="table table-condensed table-nutrient">
+                <tbody>
+                  <tr>
+                    <td>Energy</td>
+                    <td class="td-right"><span id="info-energy"></span> kcal</td>
+                  </tr>
+                  <tr>
+                    <td>Protein</td>
+                    <td class="td-right"><span id="info-protein"></span> g</td>
+                  </tr>
+                  <tr>
+                    <td>Carbo</td>
+                    <td class="td-right"><span id="info-carbo"></span> g</td>
+                  </tr>
+                  <tr>
+                    <td>Fat</td>
+                    <td class="td-right"><span id="info-fat"></span> g</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>        
       </div>
     </div>
   </body>
