@@ -104,7 +104,6 @@ class Serving(models.Model):
   day = models.ForeignKey(Day)
   food = models.ForeignKey(Food)
   amount = models.IntegerField(default = 0) # grams
-  
   meal = models.CharField(max_length = 1, choices = MEAL_CHOICES)
 
   class Meta:
@@ -121,7 +120,6 @@ class Serving(models.Model):
 
   def fat(self):
     return float(self.food.fat) / 100.0 * float(self.amount)
-
 
   def __unicode__(self):
     return "%d g. %s" % (self.amount, self.food.text)

@@ -17,4 +17,5 @@ urlpatterns = patterns('',
   # Food
   url(r'^food/$', views.FoodView.as_view(), name = 'food'),
   url(r'^food/search/$', views.food_search, name = 'food_search'),
+  url(r'^food/search/$', views.food_add, name = 'food_add'),
 )

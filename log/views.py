@@ -123,3 +123,7 @@ def food_search(request):
       data = serializers.serialize('json', Food.objects.filter(text__contains = food_query))
       return HttpResponse(data, content_type = 'application/json')
     return HttpResponse()
+
+def food_add(request):
+  if request.method == 'POST':
+    new_food = Food(text = "")

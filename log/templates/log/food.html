@@ -5,8 +5,113 @@
 {% endblock title %}
 
 {% block content %}
-  <h1>Food</h1>
+
+  <h2>Food<button type="button" class="pull-right btn btn-default btn-xs" data-toggle="modal" data-target="#add-food-modal"><span class="glyphicon glyphicon-plus"></span></button></h2>  
   {% for food in food_list %}
     {{ food.text }} - {{ food.energy }} kcal/100 g <br />
   {% endfor %}
+
+
+  <div class="modal" id="add-food-modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add food</h4>
+        </div>
+        <form id="add-food-form" class="form-horizontal" role="form" method="post" action="add/">
+          <div class="modal-body">
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="amount">Name</label>
+              <div class="controls">
+                <div class="input-group col-sm-8">
+                  <input type="text" class="form-control input-sm" id="food-name" name="food-name" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="energy-amount">Energy</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" class="form-control input-sm" id="energy-amount" name="energy-amount" />
+                  <span class="input-group-addon">kcal / 100 g</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="carbo-amount">Carbohydrates</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" class="form-control input-sm" id="carbo-amount" name="carbo-amount" />
+                  <span class="input-group-addon">g / 100 g</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="protein-amount">Protein</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" class="form-control input-sm" id="protein-amount" name="protein-amount" />
+                  <span class="input-group-addon">g / 100 g</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="fat-amount">Fat</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" class="form-control input-sm" id="fat-amount" name="fat-amount" />
+                  <span class="input-group-addon">g / 100 g</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <input type="submit" id="add-food-submit" value="Add" class="btn btn-primary" />
+          </div>
+        </form> 
+      </div>
+    </div>
+    <script type="text/javascript">
+      // Focus on the foodbox
+      $('#add-food-modal').on('shown.bs.modal', function (e) {
+        $('#food-name').focus();
+      });
+
+      // Use ajax to edit the serving's amount and update ui with changes accordingly.
+      // $('#add-food-modal').submit(function() {
+      //   // prevent default browser behaviour
+      //   event.preventDefault();
+      //   var name = $('#food-name').val();
+      //   var url = document.URL + 'food/add/';
+      //   var input = {name: $('#food-name').val(), energy: $('#energy-amount').val(), carbo: $('#carb-amount').val(), protein: $('#protein-amount').val(), fat: $('#fat-amount').val()};
+      //   $.post(url, input).done(function(data) {
+      //     var serving_obj = JSON.parse(data.serving_obj);
+      //     var amount = serving_obj[0].fields.amount;
+      //     var cals = data.cals;
+      //     serving_row.find(".amount").text(amount);
+      //     serving_row.find(".cals").text(cals);
+      //     serving_row.find(".open-edit-serving").attr('data-amount', amount);
+      //     updateDayInfo();
+      //     $('#edit_amount').blur();
+      //     $('#edit-serving-modal').modal('hide');
+      //   });
+      // });
+
+      // Activate submit when input is correct
+      $("#edit_amount").keyup(function() {
+        var amount = $('#edit_amount').val();
+        if (amount) {
+          $('#edit_serving_submit').prop('disabled', false);
+        } else {
+          $('#edit_serving_submit').prop('disabled', true);
+        }
+      });
+    </script>
+
+  </div>
+
+
 {% endblock content %}
