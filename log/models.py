@@ -1,11 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
 import datetime
-import sys
-
-# print >>sys.stderr, meal_cal
 
 # Create your models here.
 class Day(models.Model):
+  user_ref = models.ForeignKey(User)
   day = models.DateField()
   max_cal = models.IntegerField(default = 0)
 
@@ -62,20 +61,6 @@ class Day(models.Model):
 
   def __unicode__(self):
     return str(self.day)
-
-
-
-# class Meal(models.Model):
-#   day = models.ForeignKey(Day)
-
-#   def cals(self):
-#     food_in_meal = Serving.objects.filter(meal = self)
-#     return reduce(lambda acc, serv: acc + serv.cals(), food_in_meal, 0)
-
-#   def __unicode__(self):
-#     return str(self.day.day) + ' - ' + self.meal
-
-
 
 class Food(models.Model):
   text = models.CharField(max_length = 255)

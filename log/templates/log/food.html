@@ -81,34 +81,27 @@
       });
 
       // Use ajax to edit the serving's amount and update ui with changes accordingly.
-      // $('#add-food-modal').submit(function() {
-      //   // prevent default browser behaviour
-      //   event.preventDefault();
-      //   var name = $('#food-name').val();
-      //   var url = document.URL + 'food/add/';
-      //   var input = {name: $('#food-name').val(), energy: $('#energy-amount').val(), carbo: $('#carb-amount').val(), protein: $('#protein-amount').val(), fat: $('#fat-amount').val()};
-      //   $.post(url, input).done(function(data) {
-      //     var serving_obj = JSON.parse(data.serving_obj);
-      //     var amount = serving_obj[0].fields.amount;
-      //     var cals = data.cals;
-      //     serving_row.find(".amount").text(amount);
-      //     serving_row.find(".cals").text(cals);
-      //     serving_row.find(".open-edit-serving").attr('data-amount', amount);
-      //     updateDayInfo();
-      //     $('#edit_amount').blur();
-      //     $('#edit-serving-modal').modal('hide');
-      //   });
-      // });
+      $('#add-food-modal').submit(function() {
+        // prevent default browser behaviour
+        event.preventDefault();
+        var name = $('#food-name').val();
+        var url = document.URL + 'add/';
+        var input = {name: $('#food-name').val(), energy: $('#energy-amount').val(), carbo: $('#carbo-amount').val(), protein: $('#protein-amount').val(), fat: $('#fat-amount').val()};
+        console.log(input);
+        $.post(url, input).done(function(data) {
+          $('#add-food-modal').modal('hide');
+        });
+      });
 
       // Activate submit when input is correct
-      $("#edit_amount").keyup(function() {
-        var amount = $('#edit_amount').val();
-        if (amount) {
-          $('#edit_serving_submit').prop('disabled', false);
-        } else {
-          $('#edit_serving_submit').prop('disabled', true);
-        }
-      });
+      // $("#edit_amount").keyup(function() {
+      //   var amount = $('#edit_amount').val();
+      //   if (amount) {
+      //     $('#edit_serving_submit').prop('disabled', false);
+      //   } else {
+      //     $('#edit_serving_submit').prop('disabled', true);
+      //   }
+      // });
     </script>
 
   </div>
