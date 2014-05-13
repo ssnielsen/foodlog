@@ -52,14 +52,13 @@ class DayView(generic.DateDetailView):
     try:
       day = Day.objects.get(day = date, user_ref = user)
     except Day.DoesNotExist: # Create new day
-      max_cal = findBestMaxCal(date)
+      max_cal = findBestMaxCal(user, date)
       day = Day(day = date, max_cal = max_cal, user_ref = user)
       day.save()
     return day
 
-def findBestMaxCal(date):
+def findBestMaxCal(user, date):
   '''Find the best match for a newly created day'''
-  user = request.user
   days_lt = Day.objects.filter(day__lt = date, user_ref = user).order_by('-day')
   for day in days_lt:
     return day.max_cal
