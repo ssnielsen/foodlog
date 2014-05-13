@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 
 import json
 import datetime
+import urllib2
 
 from log.models import Day, Serving, Food, REV_MEAL_DICT
 from log.forms import FoodSearchForm
@@ -145,6 +146,16 @@ def food_search(request):
       data = serializers.serialize('json', Food.objects.filter(text__contains = food_query))
       return HttpResponse(data, content_type = 'application/json')
     return HttpResponse()
+
+def external_food_search(request, query):
+  if request.method == 'GET':
+    external_url = u''.join(('http://www.vaegttab.nu/ajax/foods?q=', query)).encode('utf-8').strip() # Funky join due to encoding
+    external_request = urllib2.Request(external_url)
+    external_response = urllib2.urlopen(external_request)
+    external_data = external_response.read()
+    return HttpResponse(external_data)
+  else:
+    return HttpResponse(json.dumps([]))
 
 def food_add(request):
   print(request.POST)

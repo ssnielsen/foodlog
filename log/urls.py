@@ -22,6 +22,7 @@ urlpatterns = patterns('',
   url(r'^food/$', views.FoodView.as_view(), name = 'food'),
   url(r'^food/search/$', views.food_search, name = 'food_search'),
   url(r'^food/add/$', views.food_add, name = 'food_add'),
+  url(r'^food/external/(?P<query>\w{1,100})/$', views.external_food_search, name = 'external_food_search'),
 
   # Catch all
   url(r'^.*/$', views.catchall, name = 'catchall')

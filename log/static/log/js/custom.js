@@ -209,6 +209,18 @@ $(function() {
   calendar.datepicker('update', chosen_date);
   $('.datepicker-inline').addClass('center-block');
 
-
   updateDayInfo();
 });
+
+function getBaseURL() {
+  return window.location.protocol + '//' + window.location.host;
+}
+
+
+
+
+
+
+
+
+
