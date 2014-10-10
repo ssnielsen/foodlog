@@ -57,6 +57,27 @@ $(document).on("click", ".open-edit-serving", function () {
   $(".modal-body #edit_amount").select();
 });
 
+
+
+// Fill food data on edit food modal
+$(document).on("click", ".open-edit-food", function () {
+  var id = $(this).data('food');
+  var energy = $(this).data('energy');
+  var name = $('#food-name-' + id).html();
+  var carbo = $(this).data('carbo');
+  var protein = $(this).data('protein');
+  var fat = $(this).data('fat');
+  $(".modal-body #edit-food-id").val(id);
+  $(".modal-body #edit-food-name").val(name);
+  $(".modal-body #edit-energy-amount").val(energy);
+  $(".modal-body #edit-carbo-amount").val(carbo);
+  $(".modal-body #edit-protein-amount").val(protein);
+  $(".modal-body #edit-fat-amount").val(fat);
+});
+
+
+
+
 // Setup for handling csrf tokens in Django
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection

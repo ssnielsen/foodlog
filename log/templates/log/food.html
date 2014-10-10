@@ -6,11 +6,23 @@
 
 {% block content %}
 
+<p>
   <h2>Food<button type="button" class="pull-right btn btn-default btn-xs" data-toggle="modal" data-target="#add-food-modal"><span class="glyphicon glyphicon-plus"></span></button></h2>  
-  {% for food in food_list %}
-    {{ food.text }} - {{ food.energy }} kcal/100 g <br />
-  {% endfor %}
-
+  <table class="table table-condensed">
+    <tbody>
+    {% for food in food_list %}
+      <tr><td>
+        <div class="btn-group hover-visible" style="float: right">
+          <button type="button" class="open-edit-food btn btn-default btn-xs" data-toggle="modal" data-target="#edit-food-modal" data-food="{{ food.id }}" data-energy="{{ food.energy }}" data-carbo="{{ food.carbo }}" data-protein="{{ food.protein }}" data-fat="{{ food.fat }}">
+            <span class="glyphicon glyphicon-edit"></span>
+          </button>
+        </div>
+        <span id="food-name-{{ food.id }}">{{ food.text }}</span>
+      </td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</p>
 
   <div class="modal" id="add-food-modal">
     <div class="modal-dialog">
@@ -23,7 +35,7 @@
           <div class="modal-body">
             {% csrf_token %}
             <div class="form-group">
-              <label class="col-sm-3 control-label" for="amount">Name</label>
+              <label class="col-sm-3 control-label" for="food-name">Name</label>
               <div class="controls">
                 <div class="input-group col-sm-8">
                   <input type="text" class="form-control input-sm" id="food-name" name="food-name" />
@@ -34,7 +46,7 @@
               <label class="col-sm-3 control-label" for="energy-amount">Energy</label>
               <div class="controls">
                 <div class="input-group col-sm-6">
-                  <input type="number" class="form-control input-sm" id="energy-amount" name="energy-amount" />
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="energy-amount" name="energy-amount" />
                   <span class="input-group-addon">kcal / 100 g</span>
                 </div>
               </div>
@@ -43,7 +55,7 @@
               <label class="col-sm-3 control-label" for="carbo-amount">Carbohydrates</label>
               <div class="controls">
                 <div class="input-group col-sm-6">
-                  <input type="number" class="form-control input-sm" id="carbo-amount" name="carbo-amount" />
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="carbo-amount" name="carbo-amount" />
                   <span class="input-group-addon">g / 100 g</span>
                 </div>
               </div>
@@ -52,7 +64,7 @@
               <label class="col-sm-3 control-label" for="protein-amount">Protein</label>
               <div class="controls">
                 <div class="input-group col-sm-6">
-                  <input type="number" class="form-control input-sm" id="protein-amount" name="protein-amount" />
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="protein-amount" name="protein-amount" />
                   <span class="input-group-addon">g / 100 g</span>
                 </div>
               </div>
@@ -61,7 +73,7 @@
               <label class="col-sm-3 control-label" for="fat-amount">Fat</label>
               <div class="controls">
                 <div class="input-group col-sm-6">
-                  <input type="number" class="form-control input-sm" id="fat-amount" name="fat-amount" />
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="fat-amount" name="fat-amount" />
                   <span class="input-group-addon">g / 100 g</span>
                 </div>
               </div>
@@ -69,7 +81,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <input type="submit" id="add-food-submit" value="Add" class="btn btn-primary" />
+            <input type="submit" id="add-food-submit" disabled="true" value="Add" class="btn btn-primary" />
           </div>
         </form> 
       </div>
@@ -87,24 +99,132 @@
         var name = $('#food-name').val();
         var url = document.URL + 'add/';
         var input = {name: $('#food-name').val(), energy: $('#energy-amount').val(), carbo: $('#carbo-amount').val(), protein: $('#protein-amount').val(), fat: $('#fat-amount').val()};
-        console.log(input);
         $.post(url, input).done(function(data) {
           $('#add-food-modal').modal('hide');
         });
       });
 
       // Activate submit when input is correct
-      // $("#edit_amount").keyup(function() {
-      //   var amount = $('#edit_amount').val();
-      //   if (amount) {
-      //     $('#edit_serving_submit').prop('disabled', false);
-      //   } else {
-      //     $('#edit_serving_submit').prop('disabled', true);
-      //   }
-      // });
+      $('#add-food-modal').keyup(function() {
+        var name = $('#food-name').val();
+        var carbo = $('#carbo-amount').val();
+        var protein = $('#protein-amount').val();
+        var fat = $('#fat-amount').val();
+        if (name && carbo && protein && fat) {
+          $('#add-food-submit').prop('disabled', false);
+        } else {
+          $('#add-food-submit').prop('disabled', true);
+        }
+      });
     </script>
 
   </div>
 
 
+  <div class="modal" id="edit-food-modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Edit food</h4>
+        </div>
+        <form id="edit-food-form" class="form-horizontal" role="form" method="post" action="edit/">
+          <div class="modal-body">
+            {% csrf_token %}
+            <input type="hidden" id="edit-food-id" name="edit-food-id" value="" />
+            <div class="form-group">
+              <label class="col-sm-3 control-label" min="0" for="edit-food-name">Name</label>
+              <div class="controls">
+                <div class="input-group col-sm-8">
+                  <input type="text" class="form-control input-sm" id="edit-food-name" name="edit-food-name" />
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="edit-energy-amount">Energy</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="edit-energy-amount" name="edit-energy-amount" />
+                  <span class="input-group-addon">kcal / 100 g</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="edit-carbo-amount">Carbohydrates</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="edit-carbo-amount" name="edit-carbo-amount" />
+                  <span class="input-group-addon">g / 100 g</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="edit-protein-amount">Protein</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="edit-protein-amount" name="edit-protein-amount" />
+                  <span class="input-group-addon">g / 100 g</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label" for="edit-fat-amount">Fat</label>
+              <div class="controls">
+                <div class="input-group col-sm-6">
+                  <input type="number" separator="," min="0" step="any" class="form-control input-sm" id="edit-fat-amount" name="edit-fat-amount" />
+                  <span class="input-group-addon">g / 100 g</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <input type="submit" id="edit-food-submit" disabled="true" value="Submit" class="btn btn-primary" />
+          </div>
+        </form> 
+      </div>
+    </div>
+    <script type="text/javascript">
+      // Focus on the foodbox
+      $('#edit-food-modal').on('shown.bs.modal', function (e) {
+        $('#edit-food-name').focus();
+      });
+
+      // Use ajax to edit the serving's amount and update ui with changes accordingly.
+      $('#edit-food-modal').submit(function() {
+        // prevent default browser behaviour
+        event.preventDefault();
+        var name = $('#edit-food-name').val();
+        var url = document.URL + 'edit/';
+        var id = $('#edit-food-id').val();
+        var name = $('#edit-food-name').val();
+        var input = {id: id, name: name, energy: $('#edit-energy-amount').val(), carbo: $('#edit-carbo-amount').val(), protein: $('#edit-protein-amount').val(), fat: $('#edit-fat-amount').val()};
+        $.post(url, input).done(function(data) {
+          $('#food-name-' + id).html(name);
+          $('#edit-food-modal').modal('hide');
+        });
+      });
+
+      // Activate submit when input is correct
+      $('#edit-food-modal').keyup(function() {
+        var name = $('#edit-food-name').val();
+        var carbo = $('#edit-carbo-amount').val();
+        var protein = $('#edit-protein-amount').val();
+        var fat = $('#edit-fat-amount').val();
+        if (name && carbo && protein && fat) {
+          $('#edit-food-submit').prop('disabled', false);
+        } else {
+          $('#edit-food-submit').prop('disabled', true);
+        }
+      });
+    </script>
+
+  </div>
+
+<script>
+$(function() {
+  $('.right-sidebar').css('visibility', 'hidden');  
+});
+
+</script>
 {% endblock content %}

@@ -147,26 +147,46 @@ def food_search(request):
       return HttpResponse(data, content_type = 'application/json')
     return HttpResponse()
 
-def external_food_search(request, query):
-  if request.method == 'GET':
-    external_url = u''.join(('http://www.vaegttab.nu/ajax/foods?q=', query)).encode('utf-8').strip() # Funky join due to encoding
-    external_request = urllib2.Request(external_url)
-    external_response = urllib2.urlopen(external_request)
-    external_data = external_response.read()
-    return HttpResponse(external_data)
-  else:
-    return HttpResponse(json.dumps([]))
+# def external_food_search(request, query):
+#   if request.method == 'GET':
+#     external_url = u''.join(('http://www.vaegttab.nu/ajax/foods?q=', query)).encode('utf-8').strip() # Funky join due to encoding
+#     external_request = urllib2.Request(external_url)
+#     external_response = urllib2.urlopen(external_request)
+#     external_data = external_response.read()
+#     return HttpResponse(external_data)
+#   else:
+#     return HttpResponse(json.dumps([]))
 
 def food_add(request):
-  print(request.POST)
   if request.method == 'POST' and request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
     name = request.POST['name']
-    energy = int(request.POST['energy'])
+    energy = float(request.POST['energy'])
     carbo = float(request.POST['carbo'])
     protein = float(request.POST['protein'])
     fat = float(request.POST['fat'])
     food = Food(text = name, energy = energy, carbo = carbo, protein = protein, fat = fat)
     food.save()
+    return HttpResponse()
+  else:
+    return HttpResponse(status = 400)
+
+def food_edit(request):
+  if request.method == 'POST' and request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
+    name = request.POST['name']
+    print(request.POST)
+    food_id = int(request.POST['id'])
+    energy = float(request.POST['energy'])
+    carbo = float(request.POST['carbo'])
+    protein = float(request.POST['protein'])
+    fat = float(request.POST['fat'])
+    food = get_object_or_404(Food, pk = food_id)
+    food.text = name
+    food.energy = energy
+    food.carbo = carbo
+    food.protein = protein
+    food.fat = fat
+    food.save()
+    print(food)
     return HttpResponse()
   else:
     return HttpResponse(status = 400)
@@ -185,7 +205,6 @@ def login_user(request):
       if user is not None:
         if user.is_active:
           login(request, user)
-          print('user logged in')
           return index(request)
       else:
         return HttpResponse(status = 403)

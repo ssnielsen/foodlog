@@ -64,13 +64,13 @@ class Day(models.Model):
 
 class Food(models.Model):
   text = models.CharField(max_length = 255)
-  energy = models.IntegerField() # kcal/100 g
-  protein = models.DecimalField(max_digits = 3, decimal_places = 1) # g/100g
-  carbo = models.DecimalField(max_digits = 3, decimal_places = 1) # g/100g
-  fat = models.DecimalField(max_digits = 3, decimal_places = 1) # g/100g
+  energy = models.DecimalField(max_digits = 4, decimal_places = 1) # kcal/100 g
+  protein = models.DecimalField(max_digits = 4, decimal_places = 1) # g/100g
+  carbo = models.DecimalField(max_digits = 4, decimal_places = 1) # g/100g
+  fat = models.DecimalField(max_digits = 4, decimal_places = 1) # g/100g
 
   def __unicode__(self):
-    return self.text
+    return self.text + " " + str(self.energy) + " " + str(self.carbo) + " " + str(self.protein) + " " + str(self.fat) 
 
 MEAL_CHOICES = (
     ('0', 'Breakfast'),
