@@ -15,7 +15,7 @@
           {# <p><a class="btn btn-primary btn-lg" role="button">Learn more &raquo;</a></p> #}
         </div>
         <div class="col-md-6">
-          <form class="form-horizontal" id="signup-form" method="post" action="signup/" data-bv-container="tooltip" data-bv-feedbackicons-valid="glyphicon glyphicon-ok"
+          <form class="form-horizontal" id="signup-form" method="post" action="/foodlog/signup/" data-bv-container="tooltip" data-bv-feedbackicons-valid="glyphicon glyphicon-ok"
                     data-bv-feedbackicons-invalid="glyphicon glyphicon-remove"
                     data-bv-feedbackicons-validating="glyphicon glyphicon-refresh">
                     {% csrf_token %}
@@ -25,7 +25,7 @@
             <!-- Email and username input-->
             <div class="form-group">
               <div class="col-md-6">
-                <input id="username" name="username" type="text" placeholder="Username" class="form-control input-md"
+                <input id="username" name="username" type="text" placeholder="Username" value="{{ username }}" class="form-control input-md"
                                   data-bv-notempty="true"
                                   data-bv-notempty-message="The username is required and cannot be empty"
 
@@ -43,7 +43,7 @@
                                   data-bv-different-message="The username and password cannot be the same as each other">
               </div>
               <div class="col-md-6">
-                <input id="email" name="email" type="text" placeholder="Email" class="form-control input-md"
+                <input id="email" name="email" type="text" placeholder="Email" value="{{ email }}" class="form-control input-md"
                                   data-bv-notempty="true"
                                   data-bv-notempty-message="The email address is required and cannot be empty"
 
@@ -55,12 +55,12 @@
             <!-- Name input-->
             <div class="form-group">
               <div class="col-md-6">
-                <input id="firstname" name="firstname" type="text" placeholder="First Name" class="form-control input-md" 
+                <input id="firstname" name="firstname" type="text" placeholder="First Name" value="{{ firstname }}" class="form-control input-md" 
                                   data-bv-notempty="true"
                                   data-bv-notempty-message="The first name is required and cannot be empty">
               </div>
               <div class="col-md-6">
-                <input id="lastname" name="lastname" type="text" placeholder="Last Name" class="form-control input-md" 
+                <input id="lastname" name="lastname" type="text" placeholder="Last Name" value="{{ lastname }}" class="form-control input-md" 
                                   data-bv-notempty="true"
                                   data-bv-notempty-message="The last name is required and cannot be empty">
               </div>

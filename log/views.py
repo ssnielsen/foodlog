@@ -9,8 +9,10 @@ from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db.models import Q
+from django.db import IntegrityError
 
 import json
 import datetime
@@ -21,8 +23,8 @@ from log.forms import FoodSearchForm
 
 import sys
 
-def landing_page(request):
-  return render_to_response('log/landing.html', context_instance=RequestContext(request))
+def landing_page(request, extra_context = dict()):
+  return render_to_response('log/landing.html', extra_context, context_instance = RequestContext(request))
 
 def catchall(request):
   return HttpResponseRedirect(reverse('foodlog:index'))
@@ -211,6 +213,7 @@ def login_user(request):
   if request.POST:
     form = LoginForm(request.POST)
     if form.is_valid():
+      print(form.cleaned_data)
       username = form.cleaned_data['username']
       password = form.cleaned_data['password']
       user = authenticate(username = username, password = password)
@@ -219,12 +222,14 @@ def login_user(request):
           login(request, user)
           return index(request)
       else:
-        return HttpResponse(status = 403)
-  return HttpResponse(status = 400)
+        return HttpResponse(status = 401)
+    else:
+      return HttpResponse(status = 401)
+  return HttpResponse(status = 405)
 
 def logout_user(request):
   logout(request)
-  return index(request)
+  return landing_page(request)
 
 class SignupForm(forms.Form):
   username = forms.CharField()
@@ -234,8 +239,11 @@ class SignupForm(forms.Form):
   email = forms.EmailField()
 
 def signup(request):
+  print(request)
+  print(request.method)
   if request.POST:
     form = SignupForm(request.POST)
+    print(form)
     if form.is_valid():
       username = form.cleaned_data['username']
       password = form.cleaned_data['password']
@@ -243,10 +251,16 @@ def signup(request):
       lastname = form.cleaned_data['lastname']
       email = form.cleaned_data['email']
 
-      user = User.objects.create_user(username, email, password)
-      user.first_name = firstname
-      user.last_name = lastname
-      user.save()
+      try:
+        user = User.objects.create_user(username, email, password)
+        user.first_name = firstname
+        user.last_name = lastname
+        user.save()
+      except IntegrityError:
+        messages.add_message(request, messages.ERROR, "Username is taken.")
+        formdata = form.cleaned_data.copy()
+        del formdata['password']
+        return landing_page(request, formdata)
 
       user_settings = UserSettings(max_cal = 2000, user_ref = user)
       user_settings.save()
@@ -255,7 +269,7 @@ def signup(request):
       login(request, authed_user)
       return index(request)
     else:
-      return HttpResponse(403)
+      return HttpResponse(400)
   else:
-    return HttpResponse(403)
+    return HttpResponse(405)
 
