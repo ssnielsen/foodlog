@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  Front
+  Frontpage
 {% endblock title %}
 
 {% block landing_content %}
@@ -15,7 +15,98 @@
           {# <p><a class="btn btn-primary btn-lg" role="button">Learn more &raquo;</a></p> #}
         </div>
         <div class="col-md-6">
-          Signupform
+          <form class="form-horizontal" id="signup-form" method="post" action="signup/" data-bv-container="tooltip" data-bv-feedbackicons-valid="glyphicon glyphicon-ok"
+                    data-bv-feedbackicons-invalid="glyphicon glyphicon-remove"
+                    data-bv-feedbackicons-validating="glyphicon glyphicon-refresh">
+                    {% csrf_token %}
+
+
+
+            <!-- Email and username input-->
+            <div class="form-group">
+              <div class="col-md-6">
+                <input id="username" name="username" type="text" placeholder="Username" class="form-control input-md"
+                                  data-bv-notempty="true"
+                                  data-bv-notempty-message="The username is required and cannot be empty"
+
+                                  data-bv-stringlength="true"
+                                  data-bv-stringlength-min="6"
+                                  data-bv-stringlength-max="30"
+                                  data-bv-stringlength-message="The username must be more than 6 and less than 30 characters long"
+
+                                  data-bv-regexp="true"
+                                  data-bv-regexp-regexp="^[a-zA-Z0-9]+$"
+                                  data-bv-regexp-message="The username can only consist of alphabetical and number"
+
+                                  data-bv-different="true"
+                                  data-bv-different-field="password"
+                                  data-bv-different-message="The username and password cannot be the same as each other">
+              </div>
+              <div class="col-md-6">
+                <input id="email" name="email" type="text" placeholder="Email" class="form-control input-md"
+                                  data-bv-notempty="true"
+                                  data-bv-notempty-message="The email address is required and cannot be empty"
+
+                                  data-bv-emailaddress="true"
+                                  data-bv-emailaddress-message="The email address is not a valid" />
+              </div>
+            </div>
+
+            <!-- Name input-->
+            <div class="form-group">
+              <div class="col-md-6">
+                <input id="firstname" name="firstname" type="text" placeholder="First Name" class="form-control input-md" 
+                                  data-bv-notempty="true"
+                                  data-bv-notempty-message="The first name is required and cannot be empty">
+              </div>
+              <div class="col-md-6">
+                <input id="lastname" name="lastname" type="text" placeholder="Last Name" class="form-control input-md" 
+                                  data-bv-notempty="true"
+                                  data-bv-notempty-message="The last name is required and cannot be empty">
+              </div>
+            </div>
+
+            <!-- Password input-->
+            <div class="form-group">
+              <div class="col-md-6">
+                <input id="password" name="password" type="password" placeholder="Password" class="form-control input-md" 
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="The password is required and cannot be empty"
+
+                                data-bv-stringlength="true"
+                                data-bv-stringlength-min="8"
+                                data-bv-stringlength-message="The password must have at least 8 characters"
+
+                                data-bv-different="true"
+                                data-bv-different-field="username"
+                                data-bv-different-message="The password cannot be the same as username" />
+              </div>
+              <div class="col-md-6">
+                <input id="password-repeat" name="password-repeat" type="password" placeholder="Repeat password" class="form-control input-md"
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="The password is required and cannot be empty"
+
+                                data-bv-identical="true"
+                                data-bv-identical-field="password"
+                                data-bv-identical-message="Passwords must be identical">
+              </div>
+            </div>
+
+            <!-- Button -->
+            <div class="form-group">
+              <div class="col-md-12">
+                <button type="submit" id="signup" name="signup" class="btn btn-lg btn-block btn-primary">Sign Up</button>
+              </div>
+            </div>
+
+
+          </form>
+
+          <script>
+            $(document).ready(function() {
+                $('#signup-form').bootstrapValidator();
+            });
+          </script>
         </div>
       </div>
     </div>
@@ -32,7 +123,7 @@
           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
        </div>
         <div class="col-md-4">
-          <h3>Ease to use</h3>
+          <h3>Easy to use</h3>
           <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
         </div>
       </div>

@@ -110,3 +110,8 @@ class Serving(models.Model):
 
   def __unicode__(self):
     return "%d g. %s" % (self.amount, self.food.text)
+
+
+class UserSettings(models.Model):
+  max_cal = models.IntegerField(default = 0)
+  user_ref = models.ForeignKey(User)

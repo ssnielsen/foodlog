@@ -1,5 +1,5 @@
 from django.contrib import admin
-from log.models import Day, Food, Serving
+from log.models import Day, Food, Serving, UserSettings
 from django.contrib.sessions.models import Session
 
 
@@ -29,4 +29,5 @@ class FoodAdmin(admin.ModelAdmin):
 
 admin.site.register(Food, FoodAdmin)
 admin.site.register(Serving)
+admin.site.register(UserSettings)
 admin.site.register(Day, DayAdmin)

@@ -7,6 +7,7 @@ from django.views import generic
 from django.template import RequestContext
 from django import forms
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models import Q
@@ -15,7 +16,7 @@ import json
 import datetime
 import urllib2
 
-from log.models import Day, Serving, Food, REV_MEAL_DICT
+from log.models import Day, Serving, Food, UserSettings, REV_MEAL_DICT
 from log.forms import FoodSearchForm
 
 import sys
@@ -59,14 +60,16 @@ class DayView(generic.DateDetailView):
     return day
 
 def findBestMaxCal(user, date):
-  '''Find the best match for a newly created day'''
-  days_lt = Day.objects.filter(day__lt = date, user_ref = user).order_by('-day')
-  for day in days_lt:
-    return day.max_cal
-  days_gt = Day.objects.filter(day__gt = date, user_ref = user).order_by('day')
-  for day in days_gt:
-    return day.max_cal
-  return 1234
+  settings = UserSettings.objects.get(user_ref = user)
+  return settings.max_cal
+  # '''Find the best match for a newly created day'''
+  # days_lt = Day.objects.filter(day__lt = date, user_ref = user).order_by('-day')
+  # for day in days_lt:
+  #   return day.max_cal
+  # days_gt = Day.objects.filter(day__gt = date, user_ref = user).order_by('day')
+  # for day in days_gt:
+  #   return day.max_cal
+  # return 1234
 
 def day_info(request, year, month, day):
   date = datetime.date(int(year), int(month), int(day))  
@@ -222,3 +225,37 @@ def login_user(request):
 def logout_user(request):
   logout(request)
   return index(request)
+
+class SignupForm(forms.Form):
+  username = forms.CharField()
+  password = forms.CharField()
+  firstname = forms.CharField()
+  lastname = forms.CharField()
+  email = forms.EmailField()
+
+def signup(request):
+  if request.POST:
+    form = SignupForm(request.POST)
+    if form.is_valid():
+      username = form.cleaned_data['username']
+      password = form.cleaned_data['password']
+      firstname = form.cleaned_data['firstname']
+      lastname = form.cleaned_data['lastname']
+      email = form.cleaned_data['email']
+
+      user = User.objects.create_user(username, email, password)
+      user.first_name = firstname
+      user.last_name = lastname
+      user.save()
+
+      user_settings = UserSettings(max_cal = 2000, user_ref = user)
+      user_settings.save()
+
+      authed_user = authenticate(username = username, password = password)
+      login(request, authed_user)
+      return index(request)
+    else:
+      return HttpResponse(403)
+  else:
+    return HttpResponse(403)
+

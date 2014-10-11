@@ -8,11 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="{% static "log/css/bootstrap.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/datepicker3.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "log/css/bootstrapValidator.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/jquery.jqplot.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "log/css/style.css" %}">
     <script type="text/javascript" src="{% static "log/js/jquery-2.0.3.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/jquery.cookie.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/bootstrap.js" %}"></script>
+    <script type="text/javascript" src="{% static "log/js/bootstrapValidator.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/bootstrap-datepicker.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.js" %}"></script>
     <script type="text/javascript" src="{% static "log/js/flot/jquery.flot.pie.js" %}"></script>
@@ -56,10 +58,10 @@
             <form class="navbar-form navbar-right" role="form" method="post" action="/foodlog/login/">
               {% csrf_token %}
               <div class="form-group">
-                <input type="text" name="username" placeholder="Username" class="form-control">
+                <input class="form-control" type="text" name="username" placeholder="Username">
               </div>
               <div class="form-group">
-                <input type="password" name="password" placeholder="Password" class="form-control">
+                <input class="form-control" type="password" name="password" placeholder="Password">
               </div>
               <button type="submit" class="btn btn-primary">Sign in</button>
             </form>
