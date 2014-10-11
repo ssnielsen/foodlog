@@ -9,8 +9,6 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ['session_key', '_session_data', 'expire_date']
 admin.site.register(Session, SessionAdmin)
 
-# Register your models here.
-
 class ServingInline(admin.TabularInline):
   model = Serving
   extra = 0
@@ -26,6 +24,9 @@ class DayAdmin(admin.ModelAdmin):
   list_display = ('day', 'max_cal', 'cals', 'user_ref')
   inlines = [ServingInline]
 
-admin.site.register(Food)
+class FoodAdmin(admin.ModelAdmin):
+  list_display = ('text', 'energy', 'carbo', 'protein', 'fat', 'public', 'creator')
+
+admin.site.register(Food, FoodAdmin)
 admin.site.register(Serving)
 admin.site.register(Day, DayAdmin)

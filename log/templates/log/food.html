@@ -7,8 +7,16 @@
 {% block content %}
 
 <p>
-  <h2>Food<button type="button" class="pull-right btn btn-default btn-xs" data-toggle="modal" data-target="#add-food-modal"><span class="glyphicon glyphicon-plus"></span></button></h2>  
+  <h2>Food</h2>  
   <table class="table table-condensed">
+    <thead>
+      <tr><th>
+        <div class="btn-group hover-visible" style="float: right">
+          <button type="button" class="pull-right btn btn-default btn-xs" data-toggle="modal" data-target="#add-food-modal"><span class="glyphicon glyphicon-plus"></span></button> 
+        </div>
+        Food
+      </th></tr>
+    </thead>
     <tbody>
     {% for food in food_list %}
       <tr><td>

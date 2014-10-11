@@ -9,6 +9,7 @@ from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.db.models import Q
 
 import json
 import datetime
@@ -19,7 +20,6 @@ from log.forms import FoodSearchForm
 
 import sys
 
-# Create your views here.
 def landing_page(request):
   return render_to_response('log/landing.html', context_instance=RequestContext(request))
 
@@ -117,7 +117,6 @@ def remove_serving(request, year, month, day):
     serving = Serving.objects.get(pk = request.POST['serving_id'])
     serving.delete()
   return HttpResponse()
-  #return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))
 
 def edit_serving(request, year, month, day):
   if 'serving_id' in request.POST and 'amount' in request.POST:
@@ -131,20 +130,32 @@ def edit_serving(request, year, month, day):
     data = json.dumps(to_json)
     return HttpResponse(data, content_type = 'application/json')
   return HttpResponse()
-  #return HttpResponseRedirect(reverse('foodlog:day', kwargs = {'year': year, 'month': month, 'day': day}))
 
 
 class FoodView(generic.ListView):
   model = Food
   template_name = 'log/food.html'
 
+  # Only select the food-items private to the user. I.e. created by the user.
+  def get_queryset(self):
+    return Food.objects.filter(creator = self.request.user)
+
+  @method_decorator(login_required(login_url = '/foodlog/'))
+  def dispatch(self, *args, **kwargs):
+    return super(FoodView, self).dispatch(*args, **kwargs)
+
 def food_search(request):
   if request.method == 'POST':
     form = FoodSearchForm(request.POST)
     if form.is_valid():
       food_query = form.cleaned_data['food_query']
-      data = serializers.serialize('json', Food.objects.filter(text__contains = food_query))
-      return HttpResponse(data, content_type = 'application/json')
+      matches = Food.objects.filter(Q(text__contains = food_query) & (Q(public = True) | Q(creator = request.user)))
+      #public_matches = matches.filter(public = True)
+      #private_mactches = matches.filter(creator = request.user)
+      #public_serialized = serializers.serialize('json', public_matches)
+      #private_serialized = serializers.serialize('json', private_mactches)
+      serialized = serializers.serialize('json', matches)
+      return HttpResponse(serialized, content_type = 'application/json')
     return HttpResponse()
 
 # def external_food_search(request, query):
@@ -164,16 +175,15 @@ def food_add(request):
     carbo = float(request.POST['carbo'])
     protein = float(request.POST['protein'])
     fat = float(request.POST['fat'])
-    food = Food(text = name, energy = energy, carbo = carbo, protein = protein, fat = fat)
+    food = Food(text = name, energy = energy, carbo = carbo, protein = protein, fat = fat, creator = request.user)
     food.save()
-    return HttpResponse()
+    return HttpResponseRedirect(reverse('foodlog:food'))
   else:
     return HttpResponse(status = 400)
 
 def food_edit(request):
   if request.method == 'POST' and request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
     name = request.POST['name']
-    print(request.POST)
     food_id = int(request.POST['id'])
     energy = float(request.POST['energy'])
     carbo = float(request.POST['carbo'])
@@ -186,7 +196,6 @@ def food_edit(request):
     food.protein = protein
     food.fat = fat
     food.save()
-    print(food)
     return HttpResponse()
   else:
     return HttpResponse(status = 400)

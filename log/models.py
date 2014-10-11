@@ -68,6 +68,8 @@ class Food(models.Model):
   protein = models.DecimalField(max_digits = 4, decimal_places = 1) # g/100g
   carbo = models.DecimalField(max_digits = 4, decimal_places = 1) # g/100g
   fat = models.DecimalField(max_digits = 4, decimal_places = 1) # g/100g
+  public = models.BooleanField(default = False)
+  creator = models.ForeignKey(User)
 
   def __unicode__(self):
     return self.text + " " + str(self.energy) + " " + str(self.carbo) + " " + str(self.protein) + " " + str(self.fat) 
@@ -95,7 +97,7 @@ class Serving(models.Model):
     ordering = ['meal']
 
   def cals(self):
-    return int((self.food.energy / 100.0) * self.amount)
+    return int(round(float(self.food.energy) / 100.0 * self.amount))
 
   def protein(self):
     return float(self.food.protein) / 100.0 * float(self.amount)

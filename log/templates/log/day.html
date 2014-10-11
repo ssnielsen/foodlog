@@ -28,7 +28,7 @@
                   </button>
                 </div>
               </th>
-              <th width="80" class="td-right"><span id="{{ meal.0 }}-amount">{{ amount_by_meal | getkey:meal.0 }}</span> g</th>
+              <th class="td-right"><span id="{{ meal.0 }}-amount">{{ amount_by_meal | getkey:meal.0 }}</span> g</th>
               <th width="80" class="td-right"><span id="{{ meal.0 }}-cals">{{ cals_by_meal | getkey:meal.0 }}</span> kcal</th>
             </tr>
           </thead>
@@ -123,23 +123,6 @@
             $("#food-result-list option:first").attr('selected','selected');
             $('#food_id').val($('#food-result-list option:selected').attr('id'));
           });
-        
-        // var url = getBaseURL() + '/foodlog/food/external/'+ encodeURIComponent(food_query);
-        // $.get(url, function(data) {
-        //   var external_data = JSON.parse(data);
-        //   for(var i = 0; i < external_data.length; i++) {
-        //     var external_food_obj = external_data[i];
-        //     var splitted = external_food_obj['danish'].split('(');
-        //     if (splitted.length > 1) {
-        //       splitted.pop();
-        //       var food_text = splitted.join('(');
-        //     } else {
-        //       var food_text = splitted[0];
-        //     }
-        //     var option = '<option style="font-size: 8px;" id="' + external_food_obj['id'] + '" external>' + food_text.trim() + '</option>';
-        //     $('#food-result-list').append(option);
-        //   }
-        // });
       });
 
       $('#add_serving_form').submit(function() {
