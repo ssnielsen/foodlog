@@ -26,6 +26,9 @@
                   <button type="button" class="open-add-serving btn btn-default btn-xs" data-toggle="modal" data-target="#add-serving-modal" data-meal="{{ meal.0 }}">
                     <span class="glyphicon glyphicon-plus"></span>
                   </button>
+                  <button type="button" class="paste-from-pastebuffer-button btn btn-default btn-xs" data-date="{{ object.day | date:"Y-m-d" }}" data-meal="{{ meal.0 }}">
+                    <span class="glyphicon glyphicon-floppy-open"></span>
+                  </button>
                 </div>
               </th>
               <th class="td-right"><span id="{{ meal.0 }}-amount">{{ amount_by_meal | getkey:meal.0 }}</span> g</th>
@@ -40,6 +43,9 @@
                   <div class="btn-group hover-visible">
                     <button type="button" class="open-edit-serving btn btn-default btn-xs" data-toggle="modal" data-target="#edit-serving-modal" data-serving="{{ serving.pk }}" data-amount="{{ serving.amount }}">
                       <span class="glyphicon glyphicon-edit"></span>
+                    </button>
+                    <button type="button" class="add-to-pastebuffer-button btn btn-default btn-xs" data-serving="{{ serving.pk }}">
+                      <span class="glyphicon glyphicon-floppy-save"></span>
                     </button>
                     <button type="button" class="remove-serving-button btn btn-default btn-xs">
                       <span class="glyphicon glyphicon-remove"></span>
@@ -139,22 +145,11 @@
           var cals = data.cals;
           var pk = serving_obj.pk
           var food_text = data.food_text;
-          var row = '<tr id="' + pk + '"> \
-              <td> \
-                ' +  food_text +'&nbsp;&nbsp; \
-                <div class="btn-group hover-visible"> \
-                  <button type="button" class="open-edit-serving btn btn-default btn-xs" data-toggle="modal" data-target="#edit-serving-modal" data-serving="' + pk + '" data-amount="' + amount + '"> \
-                    <span class="glyphicon glyphicon-edit"></span> \
-                  </button> \
-                  <button type="button" class="remove-serving-button btn btn-default btn-xs"> \
-                    <span class="glyphicon glyphicon-remove"></span> \
-                  </button> \
-                </div> \
-              </td> \
-              <td class="td-right"><span class="amount">' + amount +'</span> g</td> \
-              <td class="td-right"><span class="cals">' + cals +'</span> kcal</td> \
-            </tr>';
-          $('#' + meal).append(row);
+          console.log(amount);
+          console.log(cals);
+          console.log(pk);
+          console.log(food_text);
+          addServingRowToMeal(meal, pk, food_text, amount, cals);
           updateServingButtons();
           updateDayInfo();
           $('#add_amount').blur();

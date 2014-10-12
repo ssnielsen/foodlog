@@ -57,6 +57,65 @@ $(document).on("click", ".open-edit-serving", function () {
   $(".modal-body #edit_amount").select();
 });
 
+// Add serving to pastebuffer
+$(document).on("click", ".add-to-pastebuffer-button", function() {
+  var url = getBaseURL() + "/foodlog/paste/add/";
+  var serving_id = $(this).data('serving');
+  var data = {serving_id: serving_id};
+  $.post(url, data).done( function(data) {
+    updatePastebuffer();
+  });
+});
+
+// Reset paste buffer
+$(document).on("click", ".reset-pastebuffer-button", function() {
+  var url = getBaseURL() + "/foodlog/paste/reset/";
+  $.post(url).done( function(data) {
+    updatePastebuffer();
+  });
+});
+
+// Paste buffer into meal
+$(document).on("click", ".paste-from-pastebuffer-button", function() {
+  var meal = $(this).data('meal');
+  var url = document.URL + "paste/";
+  data = {'meal': meal};
+  $.post(url, data).done( function(data) {
+    for(var i = 0; i < data.length; i++) {
+      serving = data[i];
+      parsed = JSON.parse(serving);
+      serving_obj = JSON.parse(parsed.serving_obj);
+      var amount = serving_obj[0].fields.amount;
+      var serving_id = serving_obj[0].pk;
+      addServingRowToMeal(meal, serving_id, parsed.food_text, amount, parsed.cals);
+      updateServingButtons();
+    }
+    updateDayInfo();
+  });
+});
+
+// Adds a serving row to a given meal. Used for ajax calls (add servings/paste buffer)
+function addServingRowToMeal(meal, serving_id, food_text, amount, cals) {
+  var row = '<tr id="' + serving_id + '">' +
+              '<td>' + food_text +'&nbsp;&nbsp;' +
+                '<div class="btn-group hover-visible">' +
+                  '<button type="button" class="open-edit-serving btn btn-default btn-xs" data-toggle="modal" data-target="#edit-serving-modal" data-serving="' + serving_id + '" data-amount="' + amount + '">' +
+                    '<span class="glyphicon glyphicon-edit"></span>' +
+                  '</button>' +
+                  '<button type="button" class="add-to-pastebuffer-button btn btn-default btn-xs" data-serving="' + serving_id + '">' +
+                    '<span class="glyphicon glyphicon-floppy-save"></span>' +
+                  '</button>' +
+                  '<button type="button" class="remove-serving-button btn btn-default btn-xs">' +
+                    '<span class="glyphicon glyphicon-remove"></span>' +
+                  '</button>' +
+                '</div>' +
+              '</td>' +
+              '<td class="td-right"><span class="amount">' + amount +'</span> g</td>' +
+              '<td class="td-right"><span class="cals">' + cals +'</span> kcal</td>' +
+            '</tr>';
+            console.log(row);
+  $('#' + meal).append(row);
+}
 
 
 // Fill food data on edit food modal
@@ -213,6 +272,23 @@ function updateDayInfo() {
   });
 }
 
+function updatePastebuffer() {
+  var url = getBaseURL() + '/foodlog/paste/';
+  $.get(url).done(function(data) {
+    if (data.length === 0) {
+      $('#pastebuffer-panel').hide();
+      return;
+    }
+    $('#pastebuffer-panel').show();
+    var content = "";
+    for(var i = 0; i < data.length; i++) {
+      pasterow = data[i];
+      content = content + '<div data-pasterow="' + i + '"><span style="float: right">' + pasterow.amount + ' g</span>' + pasterow.name + '</div>';
+    }
+    $('#pastebuffer').html(content);
+  });
+}
+
 $(function() {
   var div = $('#macro-nutrients-piechart');
   div.css('height', div.width());
@@ -231,6 +307,7 @@ $(function() {
   $('.datepicker-inline').addClass('center-block');
 
   updateDayInfo();
+  updatePastebuffer();
 });
 
 function getBaseURL() {

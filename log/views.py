@@ -98,24 +98,31 @@ def meal_info(request, year, month, day, meal):
   data = serializers.serialize('json', servings)
   return HttpResponse(data, content_type = 'application/json')
 
+def addServingToDate(user, date, meal, food_id, amount):
+  day_obj = get_object_or_404(Day, day = date, user_ref = user)
+  food = get_object_or_404(Food, pk = food_id)
+  serving = Serving(day = day_obj, meal = meal, food = food, amount = amount)
+  serving.save()
+  to_json = {
+    "serving_obj" : serializers.serialize('json', (serving,)),
+    "food_text" : food.text,
+    "cals" : serving.cals(),
+  }
+  data = json.dumps(to_json)
+  return data  
+
 def add_serving(request, year, month, day):
   if 'amount' in request.POST and 'meal' in request.POST and 'food_id' in request.POST:
-    date = datetime.date(int(year), int(month), int(day))
     user = request.user
-    day_obj = get_object_or_404(Day, day = date, user_ref = user)
-    food = get_object_or_404(Food, pk = request.POST['food_id'])
-    amount = int(request.POST['amount'])
+    date = datetime.date(int(year), int(month), int(day))
     meal = REV_MEAL_DICT[request.POST['meal']]
-    serving = Serving(day = day_obj, meal = meal, food = food, amount = amount)
-    serving.save()
-    to_json = {
-      "serving_obj" : serializers.serialize('json', (serving,)),
-      "food_text" : food.text,
-      "cals" : serving.cals(),
-    }
-    data = json.dumps(to_json)
-    return HttpResponse(data, content_type = 'application/json')
-  return index(request)
+    amount = int(request.POST['amount'])
+    food_id = request.POST['food_id']
+    response = addServingToDate(user, date, meal, food_id, amount)  
+    print(response)  
+    return HttpResponse(response, content_type = 'application/json')
+  else:
+    return HttpResponse(status = 400)
 
 def remove_serving(request, year, month, day):
   if 'serving_id' in request.POST:
@@ -155,10 +162,6 @@ def food_search(request):
     if form.is_valid():
       food_query = form.cleaned_data['food_query']
       matches = Food.objects.filter(Q(text__contains = food_query) & (Q(public = True) | Q(creator = request.user)))
-      #public_matches = matches.filter(public = True)
-      #private_mactches = matches.filter(creator = request.user)
-      #public_serialized = serializers.serialize('json', public_matches)
-      #private_serialized = serializers.serialize('json', private_mactches)
       serialized = serializers.serialize('json', matches)
       return HttpResponse(serialized, content_type = 'application/json')
     return HttpResponse()
@@ -187,7 +190,7 @@ def food_add(request):
     return HttpResponse(status = 400)
 
 def food_edit(request):
-  if request.method == 'POST' and request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
+  if request.method == 'POST' and request.POST and 'id' in request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
     name = request.POST['name']
     food_id = int(request.POST['id'])
     energy = float(request.POST['energy'])
@@ -205,6 +208,63 @@ def food_edit(request):
   else:
     return HttpResponse(status = 400)
 
+def paste_get(request):
+  if request.method == 'GET':
+    pastebuffer = request.session['pastebuffer']
+    serialized = json.dumps(pastebuffer)
+    return HttpResponse(serialized, content_type = 'application/json')
+  else:
+    return HttpResponse(status = 403)
+
+def paste_add_from_food(request, food_id, amount):
+    pastebuffer = request.session['pastebuffer']
+    food = get_object_or_404(Food, pk = food_id)
+    pastebuffer.append({'id': food_id, 'name': food.text, 'amount': amount})
+    request.session['pastebuffer'] = pastebuffer
+    return True;
+
+def paste_add(request):
+  if request.method == 'POST' and request.POST and 'serving_id' in request.POST:
+    serving = get_object_or_404(Serving, pk = int(request.POST['serving_id']))
+    paste_add_from_food(request, serving.food.pk, serving.amount)
+    return HttpResponse()
+  else:
+    return HttpResponse(status = 400)
+
+def paste_remove(request):
+  if request.method == 'POST' and request.POST and 'number' in request.POST:
+    pastebuffer = request.session['pastebuffer']
+    del pastebuffer[int(request.POST['number'])]
+    request.session['pastebuffer'] = pastebuffer
+    return HttpResponse()
+  else:
+    return HttpResponse(status = 400)
+
+def paste_reset(request):
+  if request.method == 'POST':
+    request.session['pastebuffer'] = list()
+    return HttpResponse()
+  else:
+    return HttpResponse(status = 403)
+
+def paste_to_meal(request, year, month, day):
+  if request.method == 'POST' and request.POST and request.POST['meal']:
+    user = request.user
+    date = datetime.date(int(year), int(month), int(day))
+    meal = REV_MEAL_DICT[request.POST['meal']]
+
+    pastebuffer = request.session['pastebuffer']
+    response = list()
+    for entry in pastebuffer:
+      food_id = entry['id']
+      amount = entry['amount']
+      response.append(addServingToDate(user, date, meal, food_id, amount))
+    print(response)
+    print(json.dumps(response))
+    return HttpResponse(json.dumps(response), content_type = 'application/json')
+  else:
+    return HttpResponse(status = 403)
+
 class LoginForm(forms.Form):
   username = forms.CharField()
   password = forms.CharField()
@@ -213,13 +273,13 @@ def login_user(request):
   if request.POST:
     form = LoginForm(request.POST)
     if form.is_valid():
-      print(form.cleaned_data)
       username = form.cleaned_data['username']
       password = form.cleaned_data['password']
       user = authenticate(username = username, password = password)
       if user is not None:
         if user.is_active:
           login(request, user)
+          request.session['pastebuffer'] = list()
           return index(request)
       else:
         return HttpResponse(status = 401)
@@ -239,11 +299,8 @@ class SignupForm(forms.Form):
   email = forms.EmailField()
 
 def signup(request):
-  print(request)
-  print(request.method)
   if request.POST:
     form = SignupForm(request.POST)
-    print(form)
     if form.is_valid():
       username = form.cleaned_data['username']
       password = form.cleaned_data['password']

@@ -27,6 +27,13 @@ urlpatterns = patterns('',
   url(r'^food/edit/$', views.food_edit, name = 'food_edit'),
   # url(r'^food/external/(?P<query>\w{1,100})/$', views.external_food_search, name = 'external_food_search'),
 
+  # Pastebuffer
+  url(r'^paste/$', views.paste_get, name = 'paste'),
+  url(r'^paste/add/$', views.paste_add, name = 'paste_add'),
+  url(r'^paste/remove/$', views.paste_remove, name = 'paste_remove'),
+  url(r'^paste/reset/$', views.paste_reset, name = 'paste_reset'),
+  url(r'^(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})/paste/$', views.paste_to_meal, name = 'paste_to_meal'),
+
   # Catch all
   url(r'^.*/$', views.catchall, name = 'catchall')
 )
