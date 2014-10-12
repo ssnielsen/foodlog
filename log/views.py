@@ -213,7 +213,7 @@ def paste_get(request):
     return HttpResponse(status = 403)
 
 def paste_add_from_food(request, food_id, amount):
-  if not request.session['pastebuffer']:
+  if 'pastebuffer' not in request.session:
     request.session['pastebuffer'] = list()
   pastebuffer = request.session['pastebuffer']
   food = get_object_or_404(Food, pk = food_id)
