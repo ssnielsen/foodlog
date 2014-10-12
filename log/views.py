@@ -206,6 +206,8 @@ def food_edit(request):
 
 def paste_get(request):
   if request.method == 'GET':
+    if 'patebuffer' not in request.session:
+      request.session['pastebuffer'] = list()
     pastebuffer = request.session['pastebuffer']
     serialized = json.dumps(pastebuffer)
     return HttpResponse(serialized, content_type = 'application/json')
