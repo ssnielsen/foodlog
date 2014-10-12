@@ -213,11 +213,13 @@ def paste_get(request):
     return HttpResponse(status = 403)
 
 def paste_add_from_food(request, food_id, amount):
-    pastebuffer = request.session['pastebuffer']
-    food = get_object_or_404(Food, pk = food_id)
-    pastebuffer.append({'id': food_id, 'name': food.text, 'amount': amount})
-    request.session['pastebuffer'] = pastebuffer
-    return True;
+  if not request.session['pastebuffer']:
+    request.session['pastebuffer'] = list()
+  pastebuffer = request.session['pastebuffer']
+  food = get_object_or_404(Food, pk = food_id)
+  pastebuffer.append({'id': food_id, 'name': food.text, 'amount': amount})
+  request.session['pastebuffer'] = pastebuffer
+  return True;
 
 def paste_add(request):
   if request.method == 'POST' and request.POST and 'serving_id' in request.POST:
