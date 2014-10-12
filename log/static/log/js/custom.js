@@ -113,7 +113,6 @@ function addServingRowToMeal(meal, serving_id, food_text, amount, cals) {
               '<td class="td-right"><span class="amount">' + amount +'</span> g</td>' +
               '<td class="td-right"><span class="cals">' + cals +'</span> kcal</td>' +
             '</tr>';
-            console.log(row);
   $('#' + meal).append(row);
 }
 
@@ -305,9 +304,6 @@ $(function() {
   });
   calendar.datepicker('update', chosen_date);
   $('.datepicker-inline').addClass('center-block');
-
-  updateDayInfo();
-  updatePastebuffer();
 });
 
 function getBaseURL() {

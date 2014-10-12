@@ -145,10 +145,6 @@
           var cals = data.cals;
           var pk = serving_obj.pk
           var food_text = data.food_text;
-          console.log(amount);
-          console.log(cals);
-          console.log(pk);
-          console.log(food_text);
           addServingRowToMeal(meal, pk, food_text, amount, cals);
           updateServingButtons();
           updateDayInfo();
@@ -239,9 +235,13 @@
         }
       });
     </script>
-  </div>  
+  </div>
 
-
-
+  <script type="text/javascript">
+  $(function() {
+    updateDayInfo();
+    updatePastebuffer();
+  });
+  </script>
 
 {% endblock content %}

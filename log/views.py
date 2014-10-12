@@ -119,7 +119,6 @@ def add_serving(request, year, month, day):
     amount = int(request.POST['amount'])
     food_id = request.POST['food_id']
     response = addServingToDate(user, date, meal, food_id, amount)  
-    print(response)  
     return HttpResponse(response, content_type = 'application/json')
   else:
     return HttpResponse(status = 400)
@@ -259,8 +258,6 @@ def paste_to_meal(request, year, month, day):
       food_id = entry['id']
       amount = entry['amount']
       response.append(addServingToDate(user, date, meal, food_id, amount))
-    print(response)
-    print(json.dumps(response))
     return HttpResponse(json.dumps(response), content_type = 'application/json')
   else:
     return HttpResponse(status = 403)
@@ -281,14 +278,16 @@ def login_user(request):
           login(request, user)
           request.session['pastebuffer'] = list()
           return index(request)
-      else:
-        return HttpResponse(status = 401)
-    else:
-      return HttpResponse(status = 401)
+    messages.add_message(request, messages.ERROR, "Wrong username or password.")
+    formdata = form.cleaned_data.copy()
+    del formdata['password']
+    print(request)
+    return landing_page(request, formdata)
   return HttpResponse(status = 405)
 
 def logout_user(request):
   logout(request)
+  messages.add_message(request, messages.INFO, "Successfully signed out.")
   return landing_page(request)
 
 class SignupForm(forms.Form):
