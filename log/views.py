@@ -19,7 +19,6 @@ import datetime
 import urllib2
 
 from log.models import Day, Serving, Food, UserSettings, REV_MEAL_DICT
-from log.forms import FoodSearchForm
 
 import sys
 
@@ -156,14 +155,12 @@ class FoodView(generic.ListView):
     return super(FoodView, self).dispatch(*args, **kwargs)
 
 def food_search(request):
-  if request.method == 'POST':
-    form = FoodSearchForm(request.POST)
-    if form.is_valid():
-      food_query = form.cleaned_data['food_query']
-      matches = Food.objects.filter(Q(text__contains = food_query) & (Q(public = True) | Q(creator = request.user)))
-      serialized = serializers.serialize('json', matches)
-      return HttpResponse(serialized, content_type = 'application/json')
-    return HttpResponse()
+  if request.method == 'POST' and request.POST and request.POST['food_query']:
+    food_query = request.POST['food_query']
+    matches = Food.objects.filter(Q(text__contains = food_query) & (Q(public = True) | Q(creator = request.user)))
+    serialized = serializers.serialize('json', matches)
+    return HttpResponse(serialized, content_type = 'application/json')
+  return HttpResponse()
 
 # def external_food_search(request, query):
 #   if request.method == 'GET':
