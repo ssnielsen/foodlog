@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 import datetime
 
+PASTEBUFFER = 'pastebuffer'
+
 # Create your models here.
 class Day(models.Model):
   user_ref = models.ForeignKey(User)

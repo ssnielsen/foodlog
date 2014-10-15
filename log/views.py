@@ -18,7 +18,7 @@ import json
 import datetime
 import urllib2
 
-from log.models import Day, Serving, Food, UserSettings, REV_MEAL_DICT
+from log.models import Day, Serving, Food, UserSettings, REV_MEAL_DICT, PASTEBUFFER
 
 import sys
 
@@ -55,12 +55,13 @@ class DayView(generic.DateDetailView):
     try:
       day = Day.objects.get(day = date, user_ref = user)
     except Day.DoesNotExist: # Create new day
-      max_cal = findBestMaxCal(user, date)
+      max_cal = findBestMaxCal(self.request, user, date)
       day = Day(day = date, max_cal = max_cal, user_ref = user)
       day.save()
     return day
 
-def findBestMaxCal(user, date):
+@login_required
+def findBestMaxCal(request, user, date):
   settings = UserSettings.objects.get(user_ref = user)
   return settings.max_cal
   # '''Find the best match for a newly created day'''
@@ -72,6 +73,7 @@ def findBestMaxCal(user, date):
   #   return day.max_cal
   # return 1234
 
+@login_required
 def day_info(request, year, month, day):
   date = datetime.date(int(year), int(month), int(day))  
   user = request.user
@@ -88,6 +90,7 @@ def day_info(request, year, month, day):
   data = json.dumps(to_json)
   return HttpResponse(data, content_type = 'application/json')
 
+@login_required
 def meal_info(request, year, month, day, meal):
   date = datetime.date(int(year), int(month), int(day))
   user = request.user
@@ -97,7 +100,8 @@ def meal_info(request, year, month, day, meal):
   data = serializers.serialize('json', servings)
   return HttpResponse(data, content_type = 'application/json')
 
-def addServingToDate(user, date, meal, food_id, amount):
+@login_required
+def addServingToDate(request, user, date, meal, food_id, amount):
   day_obj = get_object_or_404(Day, day = date, user_ref = user)
   food = get_object_or_404(Food, pk = food_id)
   serving = Serving(day = day_obj, meal = meal, food = food, amount = amount)
@@ -110,6 +114,7 @@ def addServingToDate(user, date, meal, food_id, amount):
   data = json.dumps(to_json)
   return data  
 
+@login_required
 def add_serving(request, year, month, day):
   if 'amount' in request.POST and 'meal' in request.POST and 'food_id' in request.POST:
     user = request.user
@@ -117,17 +122,19 @@ def add_serving(request, year, month, day):
     meal = REV_MEAL_DICT[request.POST['meal']]
     amount = int(request.POST['amount'])
     food_id = request.POST['food_id']
-    response = addServingToDate(user, date, meal, food_id, amount)  
+    response = addServingToDate(request, user, date, meal, food_id, amount)  
     return HttpResponse(response, content_type = 'application/json')
   else:
     return HttpResponse(status = 400)
 
+@login_required
 def remove_serving(request, year, month, day):
   if 'serving_id' in request.POST:
     serving = Serving.objects.get(pk = request.POST['serving_id'])
     serving.delete()
   return HttpResponse()
 
+@login_required
 def edit_serving(request, year, month, day):
   if 'serving_id' in request.POST and 'amount' in request.POST:
     serving =  get_object_or_404(Serving, pk = request.POST['serving_id'])
@@ -154,11 +161,14 @@ class FoodView(generic.ListView):
   def dispatch(self, *args, **kwargs):
     return super(FoodView, self).dispatch(*args, **kwargs)
 
+@login_required
 def food_search(request):
   if request.method == 'POST' and request.POST and request.POST['food_query']:
     food_query = request.POST['food_query']
     matches = Food.objects.filter(Q(text__contains = food_query) & (Q(public = True) | Q(creator = request.user)))
-    serialized = serializers.serialize('json', matches)
+    serialized = serializers.serialize('json', list(matches), fields=('id', 'text'))
+
+    #serialized = json.dumps([dict(text=pn['text'], id=pn['id']) for pn in matches.values('id','text')]) # ugly
     return HttpResponse(serialized, content_type = 'application/json')
   return HttpResponse()
 
@@ -172,6 +182,7 @@ def food_search(request):
 #   else:
 #     return HttpResponse(json.dumps([]))
 
+@login_required
 def food_add(request):
   if request.method == 'POST' and request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
     name = request.POST['name']
@@ -185,6 +196,7 @@ def food_add(request):
   else:
     return HttpResponse(status = 400)
 
+@login_required
 def food_edit(request):
   if request.method == 'POST' and request.POST and 'id' in request.POST and 'name' in request.POST and 'energy' in request.POST and 'carbo' in request.POST and 'protein' in request.POST and 'fat' in request.POST:
     name = request.POST['name']
@@ -204,61 +216,70 @@ def food_edit(request):
   else:
     return HttpResponse(status = 400)
 
+@login_required
 def paste_get(request):
   if request.method == 'GET':
-    if 'patebuffer' not in request.session:
-      request.session['pastebuffer'] = list()
-    pastebuffer = request.session['pastebuffer']
+    if PASTEBUFFER not in request.session:
+      request.session[PASTEBUFFER] = list()
+    pastebuffer = request.session[PASTEBUFFER]
     serialized = json.dumps(pastebuffer)
     return HttpResponse(serialized, content_type = 'application/json')
   else:
     return HttpResponse(status = 403)
 
+@login_required
 def paste_add_from_food(request, food_id, amount):
-  if 'pastebuffer' not in request.session:
-    request.session['pastebuffer'] = list()
-  pastebuffer = request.session['pastebuffer']
+  if PASTEBUFFER not in request.session:
+    request.session[PASTEBUFFER] = list()
+  pastebuffer = request.session[PASTEBUFFER]
   food = get_object_or_404(Food, pk = food_id)
   pastebuffer.append({'id': food_id, 'name': food.text, 'amount': amount})
-  request.session['pastebuffer'] = pastebuffer
+  request.session[PASTEBUFFER] = pastebuffer
   return True;
 
+@login_required
 def paste_add(request):
-  if request.method == 'POST' and request.POST and 'serving_id' in request.POST:
-    serving = get_object_or_404(Serving, pk = int(request.POST['serving_id']))
-    paste_add_from_food(request, serving.food.pk, serving.amount)
+  if request.method == 'POST' and request.POST and 'servings' in request.POST:
+    servings = json.loads(request.POST['servings'])
+    for serving in servings:
+      serving_id = int(serving)
+      serving_obj = get_object_or_404(Serving, pk = serving_id)
+      paste_add_from_food(request, serving_obj.food.pk, serving_obj.amount)
     return HttpResponse()
   else:
     return HttpResponse(status = 400)
 
+@login_required
 def paste_remove(request):
   if request.method == 'POST' and request.POST and 'number' in request.POST:
-    pastebuffer = request.session['pastebuffer']
+    pastebuffer = request.session[PASTEBUFFER]
     del pastebuffer[int(request.POST['number'])]
-    request.session['pastebuffer'] = pastebuffer
+    request.session[PASTEBUFFER] = pastebuffer
     return HttpResponse()
   else:
     return HttpResponse(status = 400)
 
+@login_required
 def paste_reset(request):
   if request.method == 'POST':
-    request.session['pastebuffer'] = list()
+    request.session[PASTEBUFFER] = list()
     return HttpResponse()
   else:
     return HttpResponse(status = 403)
 
+@login_required
 def paste_to_meal(request, year, month, day):
   if request.method == 'POST' and request.POST and request.POST['meal']:
     user = request.user
     date = datetime.date(int(year), int(month), int(day))
     meal = REV_MEAL_DICT[request.POST['meal']]
 
-    pastebuffer = request.session['pastebuffer']
+    pastebuffer = request.session[PASTEBUFFER]
     response = list()
     for entry in pastebuffer:
       food_id = entry['id']
       amount = entry['amount']
-      response.append(addServingToDate(user, date, meal, food_id, amount))
+      response.append(addServingToDate(request, user, date, meal, food_id, amount))
     return HttpResponse(json.dumps(response), content_type = 'application/json')
   else:
     return HttpResponse(status = 403)
@@ -277,12 +298,11 @@ def login_user(request):
       if user is not None:
         if user.is_active:
           login(request, user)
-          request.session['pastebuffer'] = list()
+          request.session[PASTEBUFFER] = list()
           return index(request)
     messages.add_message(request, messages.ERROR, "Wrong username or password.")
     formdata = form.cleaned_data.copy()
     del formdata['password']
-    print(request)
     return landing_page(request, formdata)
   return HttpResponse(status = 405)
 
@@ -329,4 +349,3 @@ def signup(request):
       return HttpResponse(400)
   else:
     return HttpResponse(405)
-

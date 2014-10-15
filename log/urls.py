@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, url, include
 from log import views
+from log.dataimporter import parse_and_insert_dtu_data
 
 urlpatterns = patterns('',
   url(r'^$', views.index, name = 'index'),
@@ -33,6 +34,9 @@ urlpatterns = patterns('',
   url(r'^paste/remove/$', views.paste_remove, name = 'paste_remove'),
   url(r'^paste/reset/$', views.paste_reset, name = 'paste_reset'),
   url(r'^(?P<year>\d{4})-(?P<month>\d{1,2})-(?P<day>\d{1,2})/paste/$', views.paste_to_meal, name = 'paste_to_meal'),
+
+  # Dataimport
+  url(r'^data/import_dtu/$', parse_and_insert_dtu_data, name = 'paste_remove'),
 
   # Catch all
   url(r'^.*/$', views.catchall, name = 'catchall')

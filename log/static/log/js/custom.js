@@ -26,7 +26,7 @@ function updateServingButtons() {
 
   $('.remove-serving-button').click( function() {
     var serving = $(this).closest('tr');
-    var serving_id = serving.attr('id');
+    var serving_id = $(serving).data('serving-id');
     var url = document.URL + 'serving/remove/';
     $.post(url, {serving_id: serving_id}).done( function(data) {
       serving.remove();
@@ -61,7 +61,25 @@ $(document).on("click", ".open-edit-serving", function () {
 $(document).on("click", ".add-to-pastebuffer-button", function() {
   var url = getBaseURL() + "/foodlog/paste/add/";
   var serving_id = $(this).data('serving');
-  var data = {serving_id: serving_id};
+  var data = JSON.stringify([serving_id]);
+  $.post(url, {servings: data}).done( function(data) {
+    updatePastebuffer();
+  });
+});
+
+// Copy entire meal to paste buffer
+$(document).on("click", ".copy-meal-to-pastebuffer-button", function() {
+  var meal = $(this).data('meal');
+  var servings = Array();
+
+  $('#' + meal).children('tr').each(function(index, elem) {
+    var serving_id = $(elem).data('serving-id');
+    servings.push(serving_id);
+  });
+
+  var url = getBaseURL() + "/foodlog/paste/add/";
+  var data = {servings: JSON.stringify(servings)};
+  console.log(data);
   $.post(url, data).done( function(data) {
     updatePastebuffer();
   });
@@ -94,9 +112,10 @@ $(document).on("click", ".paste-from-pastebuffer-button", function() {
   });
 });
 
+
 // Adds a serving row to a given meal. Used for ajax calls (add servings/paste buffer)
 function addServingRowToMeal(meal, serving_id, food_text, amount, cals) {
-  var row = '<tr id="' + serving_id + '">' +
+  var row = '<tr id="serving_' + serving_id + '" data-serving-id=' + serving_id + '>' +
               '<td>' + food_text +'&nbsp;&nbsp;' +
                 '<div class="btn-group hover-visible">' +
                   '<button type="button" class="open-edit-serving btn btn-default btn-xs" data-toggle="modal" data-target="#edit-serving-modal" data-serving="' + serving_id + '" data-amount="' + amount + '">' +
@@ -110,8 +129,8 @@ function addServingRowToMeal(meal, serving_id, food_text, amount, cals) {
                   '</button>' +
                 '</div>' +
               '</td>' +
-              '<td class="td-right"><span class="amount">' + amount +'</span> g</td>' +
-              '<td class="td-right"><span class="cals">' + cals +'</span> kcal</td>' +
+              '<td class="td-right"><span class="amount">' + amount + '</span> g</td>' +
+              '<td class="td-right"><span class="cals">' + cals + '</span> kcal</td>' +
             '</tr>';
   $('#' + meal).append(row);
 }
